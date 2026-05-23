@@ -1,0 +1,168 @@
+aid: clay-com
+url: https://raw.githubusercontent.com/api-evangelist/clay-com/refs/heads/main/apis.yml
+name: Clay
+kind: company
+description: >-
+  Clay is an AI-native sales prospecting and GTM data orchestration platform
+  built around Clay Tables — spreadsheet-like workspaces that combine 150+ data
+  providers, AI research agents, and outbound automations. Clay's developer
+  surface is integration-oriented rather than a traditional public REST API:
+  HTTP API enrichment columns, incoming and outgoing webhooks, a Chrome
+  extension, and native connectors to CRMs, sequencers, and data providers.
+  External systems push data into Clay Tables and consume enriched rows via
+  webhooks or exports back to systems of record.
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - Prospecting
+  - GTM
+  - Sales
+  - Enrichment
+  - Automation
+  - AI
+  - Webhooks
+created: '2026-05-23'
+modified: '2026-05-23'
+specificationVersion: '0.19'
+apis:
+  - aid: clay-com:http-api
+    name: Clay HTTP API Enrichment
+    description: >-
+      Generic HTTP request column inside Clay Tables that lets users call any
+      external REST or GraphQL endpoint with row-level variables and write the
+      response back into Clay. Acts as Clay's universal API client for
+      integrating arbitrary services into a workflow.
+    humanURL: https://university.clay.com/docs
+    baseURL: https://university.clay.com/docs
+    tags:
+      - HTTP
+      - Enrichment
+      - REST
+    properties:
+      - type: Documentation
+        url: https://university.clay.com/docs
+  - aid: clay-com:webhooks-incoming
+    name: Clay Incoming Webhooks
+    description: >-
+      Webhook source that pushes data from any external system into a Clay
+      Table as new rows. Used to trigger Clay workflows from CRMs, signal
+      providers, and product events.
+    humanURL: https://university.clay.com/docs
+    baseURL: https://app.clay.com
+    tags:
+      - Webhooks
+      - Source
+      - Ingest
+    properties:
+      - type: Documentation
+        url: https://university.clay.com/docs
+  - aid: clay-com:webhooks-outgoing
+    name: Clay Outgoing Webhooks
+    description: >-
+      Action column that POSTs enriched row data to an external webhook URL,
+      used to deliver Clay-produced data to CRMs, sequencers, Slack, and custom
+      backends.
+    humanURL: https://university.clay.com/docs
+    baseURL: https://university.clay.com/docs
+    tags:
+      - Webhooks
+      - Action
+      - Export
+    properties:
+      - type: Documentation
+        url: https://university.clay.com/docs
+  - aid: clay-com:tables
+    name: Clay Tables
+    description: >-
+      The core spreadsheet-style workspace that combines source rows,
+      enrichment columns, conditional logic, AI agents, and write-back
+      destinations. Tables are the unit of automation and the data plane every
+      other integration reads from and writes to.
+    humanURL: https://www.clay.com/learn/tables
+    baseURL: https://app.clay.com
+    tags:
+      - Tables
+      - Workflow
+      - Data
+    properties:
+      - type: Documentation
+        url: https://university.clay.com/docs
+  - aid: clay-com:integrations
+    name: Clay Integrations
+    description: >-
+      Catalog of native connectors and 150+ data providers — Salesforce,
+      HubSpot, Pipedrive, Apollo, Clearbit, ZoomInfo, LinkedIn Sales Navigator,
+      Smartlead, Instantly, Apollo, OpenAI, and many more — exposed as source,
+      enrichment, signal, and export columns inside Clay Tables.
+    humanURL: https://www.clay.com/integrations
+    baseURL: https://www.clay.com/integrations
+    tags:
+      - Integrations
+      - Marketplace
+      - Connectors
+    properties:
+      - type: Documentation
+        url: https://www.clay.com/integrations
+  - aid: clay-com:chrome-extension
+    name: Clay Chrome Extension
+    description: >-
+      Browser extension for scraping LinkedIn profiles and other web pages
+      directly into Clay Tables, used to bootstrap prospect lists from manual
+      research.
+    humanURL: https://chromewebstore.google.com/detail/clay/jcdciginbafocoljjicajneijiapongl
+    baseURL: https://chromewebstore.google.com/detail/clay/jcdciginbafocoljjicajneijiapongl
+    tags:
+      - Chrome
+      - Extension
+      - Scraping
+    properties:
+      - type: Documentation
+        url: https://university.clay.com/docs
+common:
+  - type: Website
+    url: https://www.clay.com
+  - type: App
+    url: https://app.clay.com
+  - type: Documentation
+    url: https://university.clay.com/docs
+  - type: University
+    url: https://university.clay.com
+  - type: Integrations
+    url: https://www.clay.com/integrations
+  - type: Pricing
+    url: https://www.clay.com/pricing
+  - type: Blog
+    url: https://www.clay.com/blog
+  - type: SignUp
+    url: https://app.clay.com/signup
+  - type: SignIn
+    url: https://app.clay.com/login
+  - type: PrivacyPolicy
+    url: https://www.clay.com/privacy
+  - type: TermsOfService
+    url: https://www.clay.com/terms
+  - type: Slack
+    url: https://www.clay.com/community
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/clay-gtm
+  - type: Twitter
+    url: https://x.com/clay_gtm
+  - type: YouTube
+    url: https://www.youtube.com/@clay_gtm
+integrations:
+  - name: Salesforce
+  - name: HubSpot
+  - name: Pipedrive
+  - name: Apollo
+  - name: Clearbit
+  - name: ZoomInfo
+  - name: LinkedIn Sales Navigator
+  - name: Smartlead
+  - name: Instantly
+  - name: OpenAI
+  - name: Anthropic
+  - name: Slack
+  - name: Gmail
+  - name: Outlook
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
