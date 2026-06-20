@@ -11,7 +11,7 @@ description: >-
   extension, and native connectors to CRMs, sequencers, and data providers.
   External systems push data into Clay Tables and consume enriched rows via
   webhooks or exports back to systems of record.
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
 - Prospecting
 - GTM
