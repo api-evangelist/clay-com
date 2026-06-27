@@ -134,9 +134,9 @@ common:
   url: https://www.clay.com/pricing
 - type: Blog
   url: https://www.clay.com/blog
-- type: SignUp
+- type: Signup
   url: https://app.clay.com/signup
-- type: SignIn
+- type: Login
   url: https://app.clay.com/login
 - type: PrivacyPolicy
   url: https://www.clay.com/privacy
