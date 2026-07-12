@@ -120,6 +120,8 @@ apis:
   - type: Documentation
     url: https://university.clay.com/docs
 common:
+- type: DomainSecurity
+  url: security/clay-com-domain-security.yml
 - type: Website
   url: https://www.clay.com
 - type: App
