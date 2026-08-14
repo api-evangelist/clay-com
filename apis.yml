@@ -33,7 +33,7 @@ tags:
 - AI
 - Webhooks
 created: '2026-05-23'
-modified: '2026-05-23'
+modified: '2026-08-14'
 specificationVersion: '0.19'
 apis:
 - aid: clay-com:http-api
@@ -44,7 +44,7 @@ apis:
     response back into Clay. Acts as Clay's universal API client for
     integrating arbitrary services into a workflow.
   humanURL: https://university.clay.com/docs
-  baseURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
   tags:
   - HTTP
   - Enrichment
@@ -76,7 +76,7 @@ apis:
     used to deliver Clay-produced data to CRMs, sequencers, Slack, and custom
     backends.
   humanURL: https://university.clay.com/docs
-  baseURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
   tags:
   - Webhooks
   - Action
@@ -131,7 +131,125 @@ apis:
   properties:
   - type: Documentation
     url: https://university.clay.com/docs
+- aid: clay-com:public-api
+  name: Clay Public API
+  description: >-
+    Clay's REST API for programmatic access to the GTM platform — search Clay's
+    proprietary database of companies and people, run Clay-managed functions,
+    custom functions and Workflows as routines (inline for 1-100 items or in
+    batch over an uploaded JSONL file), poll asynchronous run results, and query
+    Clay tables with a structured filter tree. Authenticated with a personal
+    clay-api-key header. Published as OpenAPI 3.1.0 with 13 operations at
+    https://developers.clay.com/openapi.json.
+  humanURL: https://developers.clay.com
+  baseURL: https://api.clay.com/public/v0
+  tags:
+  - REST
+  - OpenAPI
+  - Search
+  - Enrichment
+  - GTM
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-public-api-openapi.json
+  - type: Overlay
+    url: overlays/clay-com-public-api-overlay.yaml
+  - type: APIReference
+    url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
+  - type: Documentation
+    url: https://developers.clay.com
+  - type: Authentication
+    url: https://developers.clay.com/public-api/authentication
+  - type: DataModel
+    url: data-model/clay-com-data-model.yml
+  - type: ErrorCatalog
+    url: errors/clay-com-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/clay-com-rate-limits.yml
+- aid: clay-com:mcp
+  name: Clay MCP Server
+  description: >-
+    Clay's hosted remote Model Context Protocol server, letting an MCP client
+    search companies and people, run enrichment routines and query Clay tables
+    from natural language. Streamable HTTP at https://api.clay.com/v3/mcp,
+    gated by Clay's own OAuth 2.0 authorization server (scope `mcp`) with PKCE,
+    device-code and dynamic client registration. Also ships as a local stdio
+    server via `clay mcp` in Clay's official agent plugin for Claude Code,
+    Codex and Cursor.
+  humanURL: https://developers.clay.com/quickstart
+  baseURL: https://api.clay.com/v3/mcp
+  tags:
+  - MCP
+  - Agents
+  - OAuth
+  properties:
+  - type: MCPServer
+    url: mcp/clay-com-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/clay-com-tool-crosswalk.yml
+  - type: OAuthScopes
+    url: scopes/clay-com-scopes.yml
 common:
+- type: LLMsTxt
+  url: llms/clay-com-llms.txt
+- type: AgentCard
+  url: a2a/clay-com-a2a.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: WellKnown
+  url: well-known/clay-com-well-known.yml
+- type: SecurityTxt
+  url: well-known/clay-com-security.txt
+- type: Security
+  url: https://trust.clay.com
+- type: Compliance
+  url: https://www.clay.com/enterprise
+- type: TrustCenter
+  url: security/clay-com-trust-center.yml
+- type: Conventions
+  url: conventions/clay-com-conventions.yml
+- type: Conformance
+  url: conformance/clay-com-conformance.yml
+- type: ErrorCatalog
+  url: errors/clay-com-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/clay-com-lifecycle.yml
+- type: StatusPage
+  url: https://status.clay.com
+- type: ChangeLog
+  url: changelog/clay-com-changelog.yml
+- type: Webhooks
+  url: asyncapi/clay-com-webhooks.yml
+- type: DataModel
+  url: data-model/clay-com-data-model.yml
+- type: Packages
+  url: packages/clay-com-packages.yml
+- type: CLI
+  url: cli/clay-com-cli.yml
+- type: Plans
+  url: plans/clay-com-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/clay-com-rate-limits.yml
+- type: FinOps
+  url: finops/clay-com-finops.yml
+- type: DeveloperPortal
+  url: https://developers.clay.com
+- type: APIReference
+  url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
+- type: GettingStarted
+  url: https://developers.clay.com/quickstart
+- type: Support
+  url: https://community.clay.com
+- type: GitHubOrganization
+  url: https://github.com/clay-run
+- type: ChangeLog
+  url: https://www.clay.com/changelog
+- type: AgenticAccess
+  url: agentic-access/clay-com-agentic-access.yml
+- type: VulnerabilityDisclosure
+  url: security/clay-com-vulnerability-disclosure.yml
+- type: Authentication
+  url: authentication/clay-com-authentication.yml
 - type: DomainSecurity
   url: security/clay-com-domain-security.yml
 - type: Website
@@ -148,7 +266,7 @@ common:
   url: https://www.clay.com/pricing
 - type: Blog
   url: https://www.clay.com/blog
-- type: Signup
+- type: SignUp
   url: https://app.clay.com/signup
 - type: Login
   url: https://app.clay.com/login
@@ -182,3 +300,8 @@ integrations:
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
+x-enrichment:
+  date: '2026-08-14'
+  status: enriched
+  artifacts_added: 48
+  pass: local-v1
