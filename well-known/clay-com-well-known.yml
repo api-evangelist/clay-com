@@ -1,0 +1,97 @@
+generated: '2026-08-14'
+method: searched
+source: probed 2026-08-14 across every Clay host in apis.yml plus the OpenAPI servers[] host
+hosts_probed:
+- https://www.clay.com
+- https://api.clay.com
+- https://app.clay.com
+- https://developers.clay.com
+- https://university.clay.com
+documents:
+- host: https://www.clay.com
+  path: /.well-known/security.txt
+  status: 200
+  content_type: text/plain
+  file: clay-com-security.txt
+  note: RFC 9116. Real document — names security@clay.com and https://trust.clay.com as the policy.
+- host: https://api.clay.com
+  path: /.well-known/oauth-authorization-server
+  status: 200
+  content_type: application/json
+  file: clay-com-oauth-authorization-server.json
+  note: >-
+    RFC 8414. Real OAuth 2.0 authorization-server metadata for the Clay MCP server and CLI —
+    issuer https://api.clay.com, PKCE S256, device-code grant, dynamic client registration,
+    scopes_supported ["mcp"].
+- host: https://api.clay.com
+  path: /.well-known/oauth-protected-resource/v3/mcp
+  status: 200
+  content_type: application/json
+  file: clay-com-oauth-protected-resource.json
+  note: >-
+    RFC 9728 protected-resource metadata, discovered from the WWW-Authenticate header the
+    MCP endpoint returns on an unauthenticated POST.
+- host: https://developers.clay.com
+  path: /.well-known/agent-card.json
+  status: 200
+  content_type: application/json
+  file: ../a2a/clay-com-agent-card.json
+  note: Real A2A AgentCard. Graded in a2a/clay-com-a2a.yml.
+- host: https://developers.clay.com
+  path: /.well-known/agent-skills/claydevelopers/skill.md
+  status: 200
+  content_type: text/markdown
+  file: ../skills/clay-com-claydevelopers.md
+  note: Provider-published Agent Skill, referenced by the agent card.
+- host: https://api.clay.com
+  path: /.well-known/oauth-protected-resource
+  status: 404
+- host: https://api.clay.com
+  path: /.well-known/openid-configuration
+  status: 404
+- host: https://api.clay.com
+  path: /.well-known/security.txt
+  status: 404
+- host: https://api.clay.com
+  path: /.well-known/agent-card.json
+  status: 404
+- host: https://api.clay.com
+  path: /.well-known/agent.json
+  status: 404
+- host: https://www.clay.com
+  path: /.well-known/openid-configuration
+  status: 404
+- host: https://www.clay.com
+  path: /.well-known/api-catalog
+  status: 404
+- host: https://www.clay.com
+  path: /.well-known/ai-plugin.json
+  status: 404
+- host: https://www.clay.com
+  path: /.well-known/agent-card.json
+  status: 404
+- host: https://www.clay.com
+  path: /.well-known/agent.json
+  status: 404
+- host: https://app.clay.com
+  path: /.well-known/security.txt
+  status: 200
+  content_type: text/html
+  file: null
+  note: >-
+    NOT A DOCUMENT. app.clay.com is a single-page app whose catch-all answers HTTP 200
+    with an HTML shell for every /.well-known/* path. Recorded as a miss, not a hit.
+- host: https://app.clay.com
+  path: /.well-known/agent-card.json
+  status: 200
+  content_type: text/html
+  file: null
+  note: Same SPA catch-all. Rejected as a false positive.
+summary:
+  real_documents: 5
+  security_txt: true
+  oauth_metadata: true
+  openid_configuration: false
+  api_catalog: false
+  ai_plugin: false
+  agent_card: true

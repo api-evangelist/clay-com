@@ -1,0 +1,122 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.clay.com/public-api/authentication
+docs:
+  authentication: https://developers.clay.com/public-api/authentication
+  pagination: https://developers.clay.com/public-api/pagination
+  errors: https://developers.clay.com/public-api/errors
+  rate_limits: https://developers.clay.com/public-api/rate-limits
+  webhooks: https://developers.clay.com/public-api/webhooks
+  cli: https://developers.clay.com/concepts/cli-basics
+api: openapi/clay-com-public-api-openapi.json
+base_url: https://api.clay.com/public/v0
+authentication:
+  style: api-key-header
+  header: clay-api-key
+  scope: tied to a Clay user and that user's workspace access
+  provisioning: Settings → Account → API keys (beta) in the Clay app, or via the agent plugin
+  oauth: >-
+    OAuth 2.0 is used for the CLI and the MCP server (scope `mcp`), not for the Public API.
+    The Public API is api-key only.
+  see: authentication/clay-com-authentication.yml
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    Clay documents NO idempotency contract for the Public API. There is no
+    Idempotency-Key header or request-id de-duplication parameter anywhere in the OpenAPI
+    (grepped: zero matches for /idempoten/i across all 13 operations) and no idempotency
+    section in the docs. The only use of the word in Clay's entire published surface is
+    `clay audiences archive` being described as a soft delete that is idempotent — a CLI
+    command, not an HTTP contract. This matters for agents: POST /routines/{id}/run
+    charges credits, and a retried run after a network timeout will run and charge twice.
+    NO Idempotency pointer is emitted in apis.yml for Clay, because the contract does not
+    exist. This is a real gap to raise with the provider, not a scoring omission.
+pagination:
+  styles:
+  - style: cursor
+    applies_to: stable collection endpoints
+    response_fields: [data, cursor]
+    rule: send the returned `cursor` on the next request; if `cursor` is omitted there are no more pages
+  - style: stateful-iterator
+    applies_to: search result endpoints (run, runQueryMode) and routine run results
+    response_fields: [data, has_more]
+    rule: call the endpoint again while `has_more` is true — the iterator consumes state as it returns results
+  limit_param: limit
+  limit_default: 'a "safe page size" — the exact default is not published per endpoint'
+  note: >-
+    The two patterns are not interchangeable. A cursor endpoint is replayable; a stateful
+    iterator is not — re-running it advances the cursor server-side, so an agent that
+    retries a failed page loses records.
+field_selection:
+  supported: true
+  applies_to: [query]
+  mechanism: FieldSelect / AggregateSelect / NestedPath in the StructuredQuery request body
+  note: Tables queries select fields, order, and filter server-side via a structured JSON query object rather than query-string sparse fieldsets.
+expansion:
+  supported: false
+metadata:
+  supported: false
+  note: No generic customer-supplied metadata bag on Clay resources.
+request_tracing:
+  request_id_header: request-id
+  direction: response
+  observed: true
+  note: >-
+    Observed on a live probe of https://api.clay.com/v3/mcp (`request-id: req_0tjr8tj33wpsBcRx7NK`).
+    Not documented, so treat as best-effort rather than contractual.
+versioning:
+  scheme: uri-path
+  current: v0
+  base: https://api.clay.com/public/v0
+  spec_version: '0'
+  note: >-
+    info.version in the OpenAPI is literally "0". The API-key feature is labelled "beta"
+    in the Clay UI, and query-mode search, Workflows and Tables carry beta/alpha/Enterprise
+    qualifiers. This is a v0 surface and should be treated as unstable.
+  see: lifecycle/clay-com-lifecycle.yml
+error_envelope:
+  format: bare-json-message
+  rfc9457: false
+  shape: '{ "message": "Validation failed" }'
+  schema: ErrorResponse
+  stable_error_codes: false
+  documented_rule: >-
+    "Use the HTTP status code as the machine-readable error category. Error response
+    bodies do not currently include stable error codes."
+  cli_shape: '{ "error": { "code", "message", "details"? } }'
+  cli_note: >-
+    The CLI is strictly richer than the HTTP API here — it emits a typed `code` and a
+    `details` object the API does not. An agent calling HTTP has less to branch on than
+    the same agent shelling out to `clay`.
+  see: errors/clay-com-problem-types.yml
+async_semantics:
+  pattern: 202-then-poll
+  rule: >-
+    Routine runs and batch runs return 202 while in progress; poll the results endpoint
+    until it returns a terminal 200.
+  open_status_set: true
+  documented_rule: >-
+    "On a terminal 200, treat unrecognized `status` values as an unhandled terminal
+    outcome — do not assume the set of statuses is closed."
+  operations: [runRoutine, startRoutineRunBatch, getRunResults, getRoutineRunBatchResults]
+rate_limit_signaling:
+  status: 429
+  headers: [Retry-After, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset]
+  conditional: 'the X-RateLimit-* trio is sent "when available"; Retry-After is documented on every 429'
+  see: rate-limits/clay-com-rate-limits.yml
+webhooks:
+  signature_header: X-Clay-Signature
+  algorithm: HMAC-SHA256 over the exact raw request body
+  format: 'sha256=<hex>'
+  secret_delivery: returned exactly once at `clay webhooks create`; unrecoverable afterwards
+  delivery_guarantee: none
+  documented_rule: '"Webhook delivery is not guaranteed. Use webhooks to react faster, but keep polling the run''s results as a fallback."'
+  see: asyncapi/clay-com-webhooks.yml
+cross_links:
+  authentication: authentication/clay-com-authentication.yml
+  errors: errors/clay-com-problem-types.yml
+  lifecycle: lifecycle/clay-com-lifecycle.yml
+  rate_limits: rate-limits/clay-com-rate-limits.yml
+  webhooks: asyncapi/clay-com-webhooks.yml
+  scopes: scopes/clay-com-scopes.yml

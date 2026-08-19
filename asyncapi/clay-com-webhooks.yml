@@ -1,0 +1,98 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.clay.com/public-api/webhooks
+spec_type: none
+asyncapi_published: false
+asyncapi_note: >-
+  Clay publishes NO AsyncAPI document. Probed /asyncapi.yaml and /asyncapi.json on
+  api.clay.com, developers.clay.com and www.clay.com — all miss. Clay does document a real
+  webhook surface, captured below, so a Webhooks pointer is emitted and no AsyncAPI
+  pointer is. Nothing here is fabricated into AsyncAPI shape.
+docs: https://developers.clay.com/public-api/webhooks
+surface: webhooks
+direction: outbound
+registration:
+  mechanism: cli-only
+  command: clay webhooks create https://example.com/hooks/clay
+  other_commands: [clay webhooks list, clay webhooks test, clay webhooks delete]
+  rest_equivalent: null
+  rest_note: >-
+    There is NO webhook CRUD operation in the Public API. Registration is CLI/MCP-only,
+    which means a pure-HTTP integration cannot provision its own webhook — a human or an
+    agent with the CLI must do it first. This is a genuine surface divergence, recorded in
+    mcp/clay-com-tool-crosswalk.yml under mcp_only[].
+  response_shape:
+    id: wh_abc123
+    url: https://example.com/hooks/clay
+    createdAt: '2026-06-16T17:50:00.000Z'
+    signingSecret: 'whsec_… (returned exactly once; unrecoverable afterwards)'
+trigger:
+  mechanism: 'pass `webhook_id` when starting a routine run'
+  operations: [runRoutine, startRoutineRunBatch]
+  docs: https://developers.clay.com/routines/api
+events:
+- name: routine run finished
+  description: >-
+    Clay POSTs to the registered URL when a routine run is ready to read. The payload does
+    NOT carry results — it carries the run id, and the consumer then fetches results.
+  payload:
+    webhookId: wh_abc123
+    createdAt: '2026-06-16T17:50:00.000Z'
+    data:
+      routine_run_id: run_abc123
+  covers: [inline routine runs, bulk/batch routine runs]
+  disambiguation_note: >-
+    The payload does not say whether the run was inline or bulk. Clay's guidance: store the
+    run mode when you start the run, or use `clay routines runs get`, which resolves either.
+    A pure-HTTP consumer must choose between /routines/run/{id}/results and
+    /routines/run-batch/{id}/results without a discriminator in the delivery.
+- name: test event
+  description: A test delivery sent by `clay webhooks test`.
+  payload:
+    webhookId: wh_abc123
+    createdAt: '<iso8601>'
+    data: {}
+  note: '`data` is an empty object on test events — this is the only documented way to tell a test from a real delivery.'
+security:
+  signature_header: X-Clay-Signature
+  algorithm: HMAC-SHA256
+  signed_over: the exact raw request body
+  format: 'sha256=<hex digest>'
+  verification: >-
+    Clay publishes a Node reference implementation using crypto.createHmac and
+    crypto.timingSafeEqual over express.raw, and instructs consumers to verify before
+    trusting a delivery.
+  secret_rotation: not documented
+  replay_protection:
+    timestamp_in_signature: false
+    note: >-
+      The signature covers the body only. There is no signed timestamp and no documented
+      replay window, so a captured delivery can be replayed indefinitely against an
+      endpoint that only checks the HMAC. Consumers should de-duplicate on routine_run_id.
+delivery:
+  guaranteed: false
+  retries: not documented
+  ordering: not documented
+  documented_rule: >-
+    "Webhook delivery is not guaranteed. Use webhooks to react faster, but keep polling the
+    run's results as a fallback."
+  implication: >-
+    Clay explicitly positions webhooks as a latency optimization on top of polling, not as
+    a reliable event stream. An integration built on webhooks alone will lose runs.
+inbound_webhooks:
+  present: true
+  description: >-
+    Separately from the Public API, Clay Tables accept INBOUND webhooks as a row source —
+    an external system POSTs into a per-table Clay URL to create rows. This is a no-code
+    product feature configured in the app, not a documented developer API, and it is
+    already catalogued as the `clay-com:webhooks-incoming` entry in apis.yml.
+  docs: https://university.clay.com/docs
+x-evidence:
+  fetched: '2026-08-14'
+  urls:
+  - url: https://developers.clay.com/public-api/webhooks.md
+    http_status: 200
+  - url: https://api.clay.com/asyncapi.yaml
+    http_status: 404
+  - url: https://developers.clay.com/asyncapi.json
+    http_status: 404

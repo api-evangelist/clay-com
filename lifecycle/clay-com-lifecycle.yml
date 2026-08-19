@@ -1,0 +1,85 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.clay.com/concepts/execution-model
+versioning:
+  scheme: uri-path
+  current: v0
+  base: https://api.clay.com/public/v0
+  spec_version: '0'
+  docs: https://developers.clay.com/quickstart
+  note: >-
+    The Public API is at v0 and info.version in the OpenAPI is literally "0". Clay
+    publishes no written versioning policy — no statement of what constitutes a breaking
+    change, no notice period, and no version-negotiation header. The path segment is the
+    only version signal.
+maturity_labels:
+- surface: Public API keys
+  label: beta
+  evidence: 'Clay UI menu reads "Settings → Account → API keys (beta)"'
+- surface: Search query mode
+  label: beta
+  evidence: 'OpenAPI operation summaries: "Create a search from a Clay search query (beta)"'
+- surface: Workflows
+  label: alpha
+  evidence: https://developers.clay.com/routines/workflows-alpha
+- surface: Tables
+  label: Enterprise-only GA
+  evidence: https://developers.clay.com/tables
+- surface: MCP server
+  label: generally available
+  evidence: https://api.clay.com/v3/mcp responds to unauthenticated POST with an RFC 9728 challenge
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  note: >-
+    NO deprecation policy is published and NO operation in the OpenAPI carries
+    `deprecated: true` (grepped: zero matches). RFC 8594 Sunset/Deprecation headers are not
+    documented. Clay DOES deprecate endpoints in practice — probing
+    https://api.clay.com/v1/openapi.json on 2026-08-14 returned HTTP 404 with the body
+    `{"success":false,"message":"deprecated API endpoint"}`, so a prior v1 surface has been
+    removed with no published policy governing it. No Deprecation pointer is emitted in
+    apis.yml, because a policy page does not exist.
+sla:
+  url: null
+  uptime_target: null
+  note: No public SLA or uptime target is published outside of Enterprise contracts.
+status_page:
+  url: https://status.clay.com
+  provider: Rootly
+  verified: true
+  evidence:
+    dns_cname: f7a72814025db4f6c0a65d3ba9090f8b677d94db.external-sp.rootly.com
+    curl_status: 403
+    curl_note: >-
+      A plain curl is answered with a Cloudflare interstitial ("Just a moment..."), not an
+      absence. A browser-shaped fetch renders the real page — titled "Clay Status", showing
+      a live ongoing incident ("Unexpected Behavior in Claygent Workflows Node", ongoing
+      for 3 days), an Incident History link and a subscribe-to-updates control.
+  features: [incident history, subscribe to updates, live component status]
+changelog:
+  developer_changelog: null
+  note: >-
+    Clay publishes no dated developer changelog for the Public API. The closest thing is
+    the CLI release stream on GitHub — see changelog/clay-com-changelog.yml.
+  cli_releases: https://github.com/clay-run/agent-plugins/releases
+  product_announcements: https://community.clay.com/x/announcements
+roadmap:
+  url: null
+  note: No public developer roadmap. Clay publishes GTM-product roadmap posts on its blog, which are marketing content rather than an API roadmap.
+retired_surfaces:
+- surface: Clay Run / Clay Bases functions-as-a-service (2016-2020)
+  evidence:
+  - github.com/clay-run/clay-cli (last push 2019-10-29)
+  - github.com/clay-run/clay-base-sdk (last push 2018-12-29)
+  - npm clayrun 0.5.2 (2017-09-18), clay-client 0.2.1 (2017-10-25), clay-base-sdk 0.0.66 (2020-04-20)
+  note: >-
+    Clay's original product was a FaaS platform. Those first-party clients are still
+    published on npm and still resolve, with no deprecation notice on the packages
+    themselves — a consumer searching npm for a Clay client finds a nine-year-old library
+    first. See packages/clay-com-packages.yml.
+- surface: Public API v1
+  evidence: 'GET https://api.clay.com/v1/openapi.json -> 404 {"success":false,"message":"deprecated API endpoint"}'
+  probed: '2026-08-14'

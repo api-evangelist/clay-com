@@ -4,7 +4,11 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Clay
 providerId: clay-com
 created: '2026-05-22'
-modified: '2026-05-22'
+modified: '2026-08-14'
+generated: '2026-08-14'
+method: searched
+source: https://developers.clay.com/public-api/rate-limits
+docs: https://developers.clay.com/public-api/rate-limits
 tags:
 - Prospecting
 - GTM
@@ -16,43 +20,107 @@ tags:
 - Rate Limiting
 - Quotas
 - Throttling
-description: Scaffolded rate limit definitions for the Clay API surface. Captures per-tier quotas, burst behavior, response
-  signaling, and recovery semantics. Defaults are scaffold values to be replaced with published provider limits.
+description: >-
+  Rate limits for the Clay Public API (https://api.clay.com/public/v0) as Clay publishes
+  them. REPLACES a scaffold that carried invented per-tier numbers (10 rpm free / 120 rpm
+  pro) which Clay has never published. Clay documents the SIGNAL precisely and the NUMBER
+  not at all: it states that a per-workspace request rate limit exists, that exceeding it
+  returns 429 with Retry-After, and that X-RateLimit-Limit/Remaining/Reset are sent "when
+  available" — but it publishes no numeric ceiling for any plan. That is the honest
+  finding, and for an agent it is the workable one, because the runtime headers are what a
+  client actually reads.
 headers:
   limit: X-RateLimit-Limit
   remaining: X-RateLimit-Remaining
   reset: X-RateLimit-Reset
   retryAfter: Retry-After
-  policy: RateLimit-Policy
+  policy: null
+  conditional: >-
+    Retry-After is documented as present on every 429. The X-RateLimit-* trio is documented
+    as sent "when available", so a client must tolerate its absence.
 responseCodes:
   throttled: 429
-  quotaExceeded: 429
-  serviceUnavailable: 503
+  quotaExceeded: 402
+  quotaExceededNote: >-
+    Clay separates throttling from exhaustion. 429 means "too fast" and is retryable.
+    402 (declared on createFilters, run, createQueryMode, runQueryMode in the OpenAPI)
+    means the workspace has consumed its metered actions or data credits, and retrying
+    will not succeed.
 limits:
-- tier: free
-  name: Free Tier Default
-  scope: api-key
-  metric: requests_per_minute
-  limit: 10
-  burst: 20
-  timeFrame: minute
+- tier: all
+  name: Per-workspace request rate limit
+  scope: workspace
+  metric: requests
+  limit: null
+  burst: null
+  timeFrame: null
   applies:
-  - https://university.clay.com/docs
-  description: Default per-token request rate for the free tier. Bursts above the limit return HTTP 429 with Retry-After.
-- tier: pro
-  name: Pro Tier Default
-  scope: api-key
-  metric: requests_per_minute
-  limit: 120
-  burst: 240
-  timeFrame: minute
-  applies:
-  - https://university.clay.com/docs
-  description: Higher rate envelope for paid plans; reconcile against published commercial terms.
+  - https://api.clay.com/public/v0
+  description: >-
+    Clay enforces a per-workspace request rate limit across the Public API. The numeric
+    ceiling, window and burst allowance are NOT published in the developer docs, on the
+    pricing page, or in the OpenAPI. Recorded as null rather than guessed.
+limit_count: 0
+limit_count_note: >-
+  Zero NUMERIC limits are published, which is the finding. The signalling contract is
+  fully documented and is captured in `headers` and `responseCodes` above.
+metered_quotas:
+- name: Actions
+  scope: workspace
+  timeFrame: month
+  by_plan:
+  - {plan: Free, included: 500}
+  - {plan: Launch, included: 15000, expandable_to: 200000}
+  - {plan: Growth, included: 40000, expandable_to: 200000}
+  - {plan: Enterprise, included: custom}
+  source: https://www.clay.com/pricing
+  note: >-
+    Actions and data credits are the real constraint on Clay API usage — the API bills
+    against the same workspace meters as the UI. See plans/clay-com-plans-pricing.yml.
+- name: Data credits
+  scope: workspace
+  timeFrame: month
+  by_plan:
+  - {plan: Free, included: 100}
+  - {plan: Launch, included: 3000, expandable_to: 50000}
+  - {plan: Growth, included: 6000, expandable_to: 50000}
+  - {plan: Enterprise, included: custom}
+  source: https://www.clay.com/pricing
+other_documented_ceilings:
+- name: Routine run inline batch size
+  limit: 100
+  unit: items per request
+  operation: runRoutine
+  source: 'OpenAPI summary: "Execute a routine against 1-100 items"'
+- name: Table row limit on the Free plan
+  limit: 200
+  unit: rows per table
+  source: https://www.clay.com/pricing
+- name: Function batch run row ceiling
+  limit: 50000
+  unit: rows
+  source: https://developers.clay.com/routines/workflows-alpha
+  note: Clay documents Workflows as the path for runs that need to avoid the 50,000 row limit.
 recoveryStrategies:
-- name: Exponential Backoff
-  description: Wait Retry-After seconds (or back off exponentially up to 60s) before retrying.
-- name: Queue and Retry
-  description: Submit bulk work in batches under the burst envelope.
-notes:
-- Replace scaffold values with the provider's published rate limit policy.
+- name: Honor Retry-After
+  description: >-
+    On 429, wait the documented Retry-After interval in seconds, then retry. The CLI
+    exposes the same value as `details.retryAfter` alongside exit code 4.
+- name: Exponential backoff with jitter
+  description: Clay explicitly recommends backoff plus jitter when issuing many concurrent requests.
+- name: Prefer batch and async endpoints over tight polling
+  description: >-
+    Clay recommends the batch/async endpoints instead of polling loops, and polling run
+    results "at a modest interval rather than as fast as possible".
+caution:
+  retry_safety: >-
+    Clay publishes no idempotency key. Retrying a 429 on a read is safe; retrying a
+    timed-out POST /routines/{id}/run may execute and charge the routine twice.
+    See conventions/clay-com-conventions.yml.
+references:
+- name: Clay Public API rate limits
+  url: https://developers.clay.com/public-api/rate-limits
+- name: Clay CLI basics (exit code 4)
+  url: https://developers.clay.com/concepts/cli-basics
+- name: Clay pricing
+  url: https://www.clay.com/pricing

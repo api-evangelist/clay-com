@@ -1,0 +1,102 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/clay-com-public-api-openapi.json
+docs: https://developers.clay.com/public-api/errors
+format: bare-json-message
+rfc9457: false
+envelope:
+  schema: ErrorResponse
+  shape: '{ "message": "Validation failed" }'
+  content_type: application/json
+  stable_error_codes: false
+note: >-
+  Clay does NOT use RFC 9457 problem+json. Every non-2xx response returns a bare JSON
+  object with a human-readable `message`, and Clay's own docs state that "error response
+  bodies do not currently include stable error codes" and that the HTTP status code is
+  the machine-readable category. The catalog below is therefore derived from the status
+  codes each operation declares in the OpenAPI, with titles and remediation taken from
+  Clay's published error guidance — there is no provider error-code registry to harvest.
+problems:
+- status: 400
+  title: Bad request
+  description: Request was malformed or failed validation.
+  remediation: Fix the request body or parameters; do not retry unchanged.
+  retryable: false
+  source_operations: [getRoutineRunBatchResults, getRunResults, runRoutine, startRoutineRunBatch, runRoutineBatchUploadUrl, createFilters, fields, run, createQueryMode, queryModeReference, runQueryMode, query]
+- status: 401
+  title: Authentication failed
+  description: Missing or invalid `clay-api-key` header.
+  body_example: '{ "message": "Authentication failed" }'
+  remediation: Supply a valid Clay API key from Settings → Account → API keys (beta).
+  retryable: false
+  source_operations: [getPublicApiMe, getRoutineRunBatchResults, getRunResults, runRoutine, startRoutineRunBatch, runRoutineBatchUploadUrl, createFilters, fields, run, createQueryMode, queryModeReference, runQueryMode, query]
+- status: 402
+  title: Payment required / credits exhausted
+  description: >-
+    Declared only on the search operations. Clay meters searches and enrichment in actions
+    and data credits, so a 402 on this API means the workspace has run out of the metered
+    resource rather than that the request was wrong.
+  remediation: Top up credits or upgrade the workspace plan; retrying will not succeed.
+  retryable: false
+  source_operations: [createFilters, run, createQueryMode, runQueryMode]
+- status: 403
+  title: Forbidden
+  description: The key is valid but the user or workspace lacks access to this resource or feature (e.g. Tables is Enterprise-only).
+  remediation: Check workspace entitlement and plan tier.
+  retryable: false
+  source_operations: [getPublicApiMe, runRoutine, startRoutineRunBatch, runRoutineBatchUploadUrl, createFilters, fields, run, createQueryMode, queryModeReference, runQueryMode, query]
+- status: 404
+  title: Not found
+  description: Missing resource or unavailable endpoint — an unknown routine id, run id, search id or table.
+  remediation: Verify the id. Routine ids take the form `function:t_...`.
+  retryable: false
+  source_operations: [getRoutineRunBatchResults, getRunResults, runRoutine, startRoutineRunBatch, runRoutineBatchUploadUrl, createFilters, run, createQueryMode, runQueryMode, query]
+- status: 413
+  title: Payload too large
+  description: Declared on the filter-mode search iterator — the requested page or payload exceeds the accepted size.
+  remediation: Reduce the page size / limit and retry.
+  retryable: true
+  source_operations: [run]
+- status: 422
+  title: Unprocessable query
+  description: Declared on the Tables query operation — the structured query is syntactically valid JSON but semantically rejected.
+  remediation: Re-check field names and filter predicates against the table schema.
+  retryable: false
+  source_operations: [query]
+- status: 429
+  title: Rate limited
+  description: The per-workspace request rate limit was exceeded.
+  remediation: >-
+    Wait for the `Retry-After` interval, then retry with exponential backoff and jitter.
+    The CLI surfaces the same condition as exit code 4 with `details.retryAfter`.
+  retryable: true
+  headers: [Retry-After, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset]
+  source_operations: [getPublicApiMe, getRoutineRunBatchResults, getRunResults, runRoutine, startRoutineRunBatch, runRoutineBatchUploadUrl, createFilters, fields, run, createQueryMode, queryModeReference, runQueryMode, query]
+- status: 5xx
+  title: Server error
+  description: Transient server-side failure. Not declared per-operation in the OpenAPI; documented in the errors guide.
+  remediation: >-
+    Retry with exponential backoff WHEN THE REQUEST IS SAFE TO RETRY. Clay publishes no
+    idempotency key, so retrying POST /routines/{id}/run after a timeout can execute and
+    charge the routine twice — see conventions/clay-com-conventions.yml.
+  retryable: conditional
+  source_operations: []
+non_error_statuses_worth_branching_on:
+- status: 202
+  meaning: >-
+    The async job is still running. Poll the results endpoint until a terminal 200. Do not
+    treat 202 as success-with-results.
+  source_operations: [runRoutine, startRoutineRunBatch, getRunResults, getRoutineRunBatchResults]
+terminal_status_values:
+  closed_set: false
+  documented_rule: 'On a terminal 200, treat unrecognized `status` values as an unhandled terminal outcome — do not assume the set of statuses is closed.'
+  schemas: [RunResultsComplete, RunResultsInProgress, BatchResultsComplete, BatchResultsInProgress, BatchResultsTerminal, BatchResultsProcessingFailed, BatchResultsValidationFailed, CellSuccess, CellError, CellEmpty, CellPending]
+  note: >-
+    Cell-level results carry their own outcome union (CellSuccess / CellError / CellEmpty /
+    CellPending). A 200 with a fully populated body can still contain per-record errors,
+    so status-code-only error handling is insufficient for routine runs.
+cli_errors:
+  shape: '{ "error": { "code", "message", "details"? } }'
+  stream: stderr
+  exit_codes: see cli/clay-com-cli.yml
+  note: The CLI exposes typed error codes the HTTP API does not.

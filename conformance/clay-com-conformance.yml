@@ -1,0 +1,105 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/clay-com-public-api-openapi.json
+searched_sources:
+- https://trust.clay.com
+- https://www.clay.com/.well-known/security.txt
+- https://api.clay.com/.well-known/oauth-authorization-server
+- https://developers.clay.com/public-api/errors
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: 'openapi/clay-com-public-api-openapi.json declares openapi: 3.1.0 with 13 operations, all with unique operationIds, summaries and descriptions.'
+- id: oauth2
+  conforms: true
+  evidence: >-
+    Real OAuth 2.0 authorization server at https://api.clay.com — authorization_code,
+    refresh_token and device_code grants, gating the CLI and the MCP server. Note the
+    Public API itself is api-key only, so conformance applies to the agent surface, not to
+    the REST surface.
+- id: rfc8414-oauth-authorization-server-metadata
+  conforms: true
+  evidence: 'https://api.clay.com/.well-known/oauth-authorization-server returns 200 with complete AS metadata (well-known/clay-com-oauth-authorization-server.json).'
+- id: rfc9728-oauth-protected-resource-metadata
+  conforms: true
+  evidence: >-
+    https://api.clay.com/.well-known/oauth-protected-resource/v3/mcp returns 200, and the
+    MCP endpoint advertises it correctly via
+    WWW-Authenticate: Bearer resource_metadata="…" on an unauthenticated request.
+- id: rfc7636-pkce
+  conforms: true
+  evidence: 'code_challenge_methods_supported: ["S256"]'
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  evidence: 'registration_endpoint: https://api.clay.com/oauth/register'
+- id: rfc8628-device-authorization-grant
+  conforms: true
+  evidence: 'device_authorization_endpoint published; `clay login --device` documented for headless machines.'
+- id: rfc7009-token-revocation
+  conforms: true
+  evidence: 'revocation_endpoint: https://api.clay.com/oauth/revoke'
+- id: rfc9116-security-txt
+  conforms: true
+  evidence: 'https://www.clay.com/.well-known/security.txt returns 200 with Contact, Policy, Expires, Preferred-Languages and Canonical fields (well-known/clay-com-security.txt).'
+- id: mcp
+  conforms: true
+  version: streamable-http
+  evidence: 'Hosted MCP server at https://api.clay.com/v3/mcp plus a stdio server via `clay mcp`. See mcp/clay-com-mcp.yml.'
+- id: a2a
+  conforms: true
+  version: '0.3'
+  grade: conformant
+  evidence: 'AgentCard served at https://developers.clay.com/.well-known/agent-card.json. Graded in a2a/clay-com-a2a.yml; deviates by using supportedInterfaces rather than additionalInterfaces.'
+- id: agent-skills
+  conforms: true
+  evidence: '21 provider-authored SKILL.md files in github.com/clay-run/agent-plugins plus one served at /.well-known/agent-skills/claydevelopers/skill.md. Harvested to skills/.'
+- id: llms-txt
+  conforms: true
+  evidence: 'https://developers.clay.com/llms.txt returns 200 with a real index of 41 doc pages and a link to the OpenAPI.'
+- id: oidc
+  conforms: false
+  evidence: 'No /.well-known/openid-configuration on any Clay host (404 on api.clay.com and www.clay.com). Clay is an OAuth AS, not an OIDC provider.'
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    Errors are a bare {"message": "..."} JSON object, not application/problem+json. Clay's
+    own docs state error bodies carry no stable error codes.
+- id: idempotency
+  conforms: false
+  evidence: 'No Idempotency-Key header or equivalent anywhere in the OpenAPI or the docs; zero matches for /idempoten/i in the spec.'
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: 'No Sunset or Deprecation header documented; no deprecation policy published, though a v1 endpoint has already been retired.'
+- id: asyncapi
+  conforms: false
+  evidence: 'Webhooks are documented in prose; no AsyncAPI document is published.'
+- id: json-api
+  conforms: false
+  evidence: 'Responses use plain data/cursor and data/has_more envelopes, not the JSON:API media type.'
+- id: fhir
+  conforms: false
+- id: scim
+  conforms: false
+- id: odata
+  conforms: false
+- id: fapi
+  conforms: false
+- id: psd2
+  conforms: false
+pagination:
+  conforms: partial
+  styles: [cursor, stateful-iterator]
+  evidence: https://developers.clay.com/public-api/pagination
+compliance_program:
+  published: true
+  trust_center: https://trust.clay.com
+  certifications: [SOC 2 Type II, ISO 27001, GDPR, CCPA]
+  note: >-
+    See security/clay-com-trust-center.yml for evidence and caveats. Certifications are
+    recorded from Clay's own announcements and its trust center; the trust center itself is
+    a JS-rendered Vanta page, so the certification list could not be read out of the HTML.
+summary:
+  conforms: 13
+  does_not_conform: 10
+  strongest: OAuth/agent-protocol stack (RFC 8414, 9728, 7636, 7591, 8628, 9116, MCP, A2A, Agent Skills, llms.txt)
+  weakest: HTTP API runtime semantics (no RFC 9457, no idempotency, no deprecation headers, no stable error codes)

@@ -1,0 +1,190 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/clay-com-public-api-openapi.json
+docs: https://developers.clay.com/concepts/execution-model
+note: >-
+  Derived from the 47 component schemas and the id-reference path parameters in Clay's
+  Public API OpenAPI, cross-read against Clay's published execution model. Clay's API is
+  execution-shaped rather than resource-shaped: there is no CRUD over nouns, so the graph
+  below is dominated by "job spawns job-result" edges rather than the has_one/has_many
+  ownership graph a record API produces.
+id_conventions:
+- entity: Routine
+  prefix: 'function:t_'
+  example: 'function:t_abc123'
+  note: Functions are addressed by a prefixed composite id; Workflows are addressed by name.
+- entity: RoutineRun
+  prefix: run_
+  example: run_abc123
+- entity: BatchFile
+  prefix: file_
+  example: file_abc123
+- entity: Webhook
+  prefix: wh_
+  example: wh_abc123
+- entity: WebhookSecret
+  prefix: whsec_
+  example: 'whsec_… (returned once at creation)'
+- entity: Search
+  prefix: null
+  note: search_id is an opaque path parameter; no documented prefix.
+entities:
+- name: User
+  schema: null
+  operations: [getPublicApiMe]
+  description: The Clay user an API key is tied to. Returned with its workspace.
+  relationships:
+  - {type: belongs_to, target: Workspace, via: workspace}
+- name: Workspace
+  schema: null
+  description: >-
+    The billing and access boundary. Rate limits are per-workspace, actions and data
+    credits are metered per-workspace, and the CLI resolves it from the stored session
+    rather than accepting it as a parameter.
+  relationships:
+  - {type: has_many, target: User}
+  - {type: has_many, target: Routine}
+  - {type: has_many, target: Table}
+  - {type: has_many, target: Webhook}
+- name: Routine
+  description: >-
+    The unit of reusable Clay logic. Three kinds: Clay-managed functions, custom functions
+    (both built in the Clay UI) and Workflows (Alpha, built from the plugin/CLI). The
+    Public API can RUN a routine but cannot create or edit one.
+  operations: [runRoutine, startRoutineRunBatch, runRoutineBatchUploadUrl]
+  relationships:
+  - {type: belongs_to, target: Workspace}
+  - {type: has_many, target: RoutineRun, via: routine_id}
+- name: RoutineRun
+  schemas: [RunRoutineRequest, RunRoutineResponse, RunResultsComplete, RunResultsInProgress, RunResultItem]
+  operations: [runRoutine, getRunResults]
+  description: An asynchronous execution of a routine against 1-100 inline items. Returns 202 while running.
+  relationships:
+  - {type: belongs_to, target: Routine, via: routine_id}
+  - {type: has_many, target: RunResultItem}
+  - {type: has_one, target: Webhook, via: webhook_id, optional: true}
+- name: BatchRun
+  schemas: [StartBatchRequest, StartBatchResponse, BatchUploadUrlResponse, BatchResultsComplete, BatchResultsInProgress, BatchResultsTerminal, BatchResultsProcessingFailed, BatchResultsValidationFailed]
+  operations: [runRoutineBatchUploadUrl, startRoutineRunBatch, getRoutineRunBatchResults]
+  description: An asynchronous execution of a routine over an uploaded JSONL file.
+  relationships:
+  - {type: belongs_to, target: Routine, via: routine_id}
+  - {type: belongs_to, target: BatchFile, via: file_id}
+  - {type: has_many, target: BatchValidationError}
+- name: BatchFile
+  schema: BatchUploadUrlResponse
+  description: A JSONL input file uploaded to a presigned PUT URL before a batch run starts.
+  relationships:
+  - {type: has_one, target: BatchRun, via: file_id}
+- name: BatchValidationError
+  schemas: [BatchValidationError, BatchValidationErrorDetail]
+  description: Per-line validation failures from a batch input file.
+  relationships:
+  - {type: belongs_to, target: BatchRun}
+- name: RunResultItem
+  schema: RunResultItem
+  description: >-
+    One input item's outcome within a run. Carries a CellResult union rather than a flat
+    value, so a 200 response can still contain per-record failures.
+  relationships:
+  - {type: belongs_to, target: RoutineRun}
+  - {type: has_one, target: CellResult}
+- name: CellResult
+  schemas: [CellResult, CellSuccess, CellError, CellEmpty, CellPending]
+  description: >-
+    The four-way outcome union for a single enriched cell — success, error, empty, pending.
+    This is the real error surface of the API and it is orthogonal to the HTTP status code.
+- name: Search
+  schemas: [CreateSearchRequest, CreateSearchResponse, SearchCreateExample]
+  operations: [createFilters, createQueryMode]
+  description: >-
+    A stateful iterator over Clay's GTM database, created in one of two modes — structured
+    filters or an advanced Clay query string (beta). The iterator consumes state as it is
+    run, so it is not replayable.
+  relationships:
+  - {type: has_many, target: SearchResult, via: search_id}
+  - {type: belongs_to, target: SearchSourceType, via: source_type}
+- name: SearchSourceType
+  values: [companies, people]
+  description: >-
+    Discriminates the two record domains. Determines the legal filter fields and the result
+    schema returned.
+  relationships:
+  - {type: has_many, target: SearchFilterField}
+- name: SearchFilterField
+  schemas: [SearchFilterField, SearchFieldsResponse, SearchFieldsGuidance, SearchGuidanceItem, FieldMeta]
+  operations: [fields]
+  description: >-
+    A machine-readable description of one filter field — type, description, allowed values
+    and usage guidance. Clay documents calling this BEFORE creating a search, which makes
+    it a schema-discovery operation for agents.
+  relationships:
+  - {type: belongs_to, target: SearchSourceType}
+- name: SearchResult
+  schemas: [NextSearchResultsResponse, NextSearchResultsBody, NextQueryModeResultsResponse, NextQueryModeCompanyResultsResponse, NextQueryModePeopleResultsResponse]
+  operations: [run, runQueryMode]
+  description: A page of records returned by a search iterator, with has_more rather than a cursor.
+  relationships:
+  - {type: belongs_to, target: Search, via: search_id}
+  - {type: has_many, target: Company}
+  - {type: has_many, target: Person}
+- name: Company
+  schema: PublicApiCompanySearchResult
+  description: A company record from Clay's proprietary GTM database.
+- name: Person
+  schema: PublicApiPersonSearchResult
+  description: A person record from Clay's proprietary GTM database.
+  relationships:
+  - {type: has_many, target: MatchedExperience, via: matched_experience}
+- name: MatchedExperience
+  schema: PublicApiMatchedExperience
+  description: The employment record on a person that matched the search criteria — the join between Person and Company.
+  relationships:
+  - {type: belongs_to, target: Person}
+  - {type: belongs_to, target: Company}
+- name: Table
+  schemas: [StructuredQueryRequest, StructuredQuery, QueryResponse]
+  operations: [query]
+  description: >-
+    A Clay table, queryable with a structured JSON query. Enterprise-only. Tables are the
+    data plane the rest of the Clay product writes into.
+  relationships:
+  - {type: belongs_to, target: Workspace}
+  - {type: has_many, target: TableRecord}
+- name: TableRecord
+  schema: QueryResponse
+  description: A row returned by a table query, with field metadata attached.
+  relationships:
+  - {type: belongs_to, target: Table}
+  - {type: has_many, target: FieldMeta}
+- name: StructuredQuery
+  schemas: [StructuredQuery, FilterExpression, FilterAnd, FilterOr, FilterNot, FilterPredicate, FieldSelect, AggregateSelect, NestedPath]
+  description: >-
+    A composable boolean filter tree (and/or/not over predicates) with field selection,
+    aggregation and nested-path access. The richest schema family in the spec and the
+    closest thing Clay has to a query language over its own data.
+- name: Webhook
+  description: >-
+    A registered delivery endpoint for run-completion notifications. Created only through
+    the CLI/MCP; the Public API has no webhook operations.
+  relationships:
+  - {type: belongs_to, target: Workspace}
+  - {type: has_many, target: RoutineRun, via: webhook_id}
+relationships_summary:
+  entities: 20
+  schemas_mapped: 47
+  strongest_cluster: routine execution (Routine -> RoutineRun/BatchRun -> RunResultItem -> CellResult)
+  second_cluster: search (Search -> SearchResult -> Company/Person -> MatchedExperience)
+  third_cluster: tables (Table -> TableRecord, driven by StructuredQuery's filter tree)
+observations:
+- >-
+  There is no create/read/update/delete over any Clay noun in the Public API. Every write
+  is an execution request and every read is either a job result or a query. An integrator
+  cannot manage Clay objects over HTTP — only run them.
+- >-
+  The pending/error/empty CellResult union means result correctness cannot be inferred from
+  the HTTP layer. Any agent using Clay must branch on cell state.
+- >-
+  Two entities (Routine, Table) are created entirely outside the API, so the API's usable
+  surface depends on state a human built in the Clay UI first.
+render: null

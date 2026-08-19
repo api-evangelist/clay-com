@@ -1,0 +1,71 @@
+generated: '2026-08-14'
+method: probed
+source: https://developers.clay.com/.well-known/agent-card.json
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: developers.clay.com
+  note: >-
+    Probed on every Clay host. www.clay.com, api.clay.com returned 404 on both the
+    canonical /.well-known/agent-card.json and the legacy /.well-known/agent.json.
+    app.clay.com returns HTTP 200 with an HTML SPA shell on every /.well-known/* path
+    and was REJECTED as a false positive. Only developers.clay.com — Clay's own
+    developer-documentation host — serves a real JSON AgentCard object.
+conformance:
+  spec: A2A 1.0.0
+  grade: conformant
+  protocol_version: '0.3'
+  preferred_transport: HTTP+JSON
+  hard_checks:
+    capabilities_is_object: true
+    protocol_version_present: true
+    skills_is_array: true
+  deviations:
+  - supportedInterfaces-instead-of-additionalInterfaces
+  - protocolVersion-0.3-predates-1.0
+card:
+  name: Clay docs
+  description: Developer documentation for using Clay from agents, CLIs, APIs, and internal systems.
+  url: https://developers.clay.com/
+  version: 1.0.0
+  provider_organization: Clay docs
+  documentation_url: https://developers.clay.com/
+  capabilities:
+    streaming: false
+    push_notifications: false
+  default_input_modes: [text/plain]
+  default_output_modes: [text/plain]
+  skills: 1
+  file: clay-com-agent-card.json
+skills:
+- id: claydevelopers
+  name: Claydevelopers
+  url: https://developers.clay.com/.well-known/agent-skills/claydevelopers/skill.md
+  harvested_to: skills/clay-com-claydevelopers.md
+  http_status: 200
+note: >-
+  Honest read of what this card is: it is a documentation-site agent card emitted by
+  Clay's Mintlify docs platform — the declared agent is "Clay docs" at
+  https://developers.clay.com/, not the Clay Public API or the Clay MCP server. It
+  advertises no streaming and no push notifications, and its single skill resolves to a
+  real, fetchable Agent Skill markdown file (HTTP 200, text/markdown) that has been
+  harvested to skills/. Clay's actual agent execution surface is the remote MCP server
+  at https://api.clay.com/v3/mcp (see mcp/clay-com-mcp.yml), which this card does not
+  reference.
+x-evidence:
+  fetched: '2026-08-14'
+  url: https://developers.clay.com/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+  rejected:
+  - url: https://app.clay.com/.well-known/agent-card.json
+    http_status: 200
+    reason: body is text/html SPA shell, not a JSON AgentCard object
+  - url: https://www.clay.com/.well-known/agent-card.json
+    http_status: 404
+  - url: https://www.clay.com/.well-known/agent.json
+    http_status: 404
+  - url: https://api.clay.com/.well-known/agent-card.json
+    http_status: 404
+  - url: https://api.clay.com/.well-known/agent.json
+    http_status: 404

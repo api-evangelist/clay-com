@@ -1,0 +1,74 @@
+generated: '2026-08-14'
+method: probed
+source: https://api.clay.com/.well-known/oauth-authorization-server
+docs: https://developers.clay.com/concepts/cli-basics
+note: >-
+  Clay's OpenAPI declares NO oauth2 security scheme — the Public API is api-key only
+  (`clay-api-key` header), so derive-oauth-scopes.py correctly found nothing in the spec.
+  But Clay does run a real OAuth 2.0 authorization server, published as RFC 8414 metadata
+  at https://api.clay.com/.well-known/oauth-authorization-server, and it is what gates the
+  `clay` CLI and the remote MCP server at https://api.clay.com/v3/mcp. The scope surface
+  below is read verbatim from that metadata document, not inferred.
+applies_to:
+- surface: MCP server
+  url: https://api.clay.com/v3/mcp
+- surface: clay CLI
+  command: clay login
+does_not_apply_to:
+- surface: Public API
+  url: https://api.clay.com/public/v0
+  auth: apiKey header clay-api-key
+authorization_server:
+  issuer: https://api.clay.com
+  authorization_endpoint: https://app.clay.com/oauth/authorize
+  token_endpoint: https://api.clay.com/oauth/token
+  device_authorization_endpoint: https://api.clay.com/oauth/device_authorization
+  registration_endpoint: https://api.clay.com/oauth/register
+  revocation_endpoint: https://api.clay.com/oauth/revoke
+  metadata_file: well-known/clay-com-oauth-authorization-server.json
+flows:
+- flow: authorizationCode
+  authorizationUrl: https://app.clay.com/oauth/authorize
+  tokenUrl: https://api.clay.com/oauth/token
+  pkce: [S256]
+- flow: deviceCode
+  grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+  deviceAuthorizationUrl: https://api.clay.com/oauth/device_authorization
+  note: Used by `clay login --device` on headless machines.
+- flow: refreshToken
+  grant_type: refresh_token
+scopes:
+- scope: mcp
+  description: >-
+    The single scope Clay's authorization server advertises. It gates the whole MCP
+    surface — search, routines and tables alike — as one grant.
+  flows: [authorizationCode, deviceCode]
+  sources: [well-known/clay-com-oauth-authorization-server.json]
+  resource: https://api.clay.com/v3/mcp
+scope_count: 1
+protected_resources:
+- resource: https://api.clay.com/v3/mcp
+  authorization_servers: [https://api.clay.com]
+  scopes_supported: [mcp]
+  metadata: well-known/clay-com-oauth-protected-resource.json
+  discovery: >-
+    Advertised in the WWW-Authenticate header on an unauthenticated POST:
+    Bearer resource_metadata="https://api.clay.com/.well-known/oauth-protected-resource/v3/mcp"
+observations:
+  granularity: coarse
+  note: >-
+    One scope for the entire agent surface means consent is all-or-nothing: an agent
+    authorized to read a search is equally authorized to run credit-consuming enrichment
+    routines and, on Enterprise, to query customer tables. There is no read-only scope and
+    no per-primitive scope. Worth flagging to the provider.
+  strengths:
+  - RFC 8414 authorization-server metadata published and reachable anonymously
+  - RFC 9728 protected-resource metadata published, correctly linked from WWW-Authenticate
+  - PKCE S256 supported
+  - dynamic client registration supported (RFC 7591)
+  - device-code grant supported for headless agents
+  - token revocation endpoint published
+  gaps:
+  - no openid-configuration (Clay is an OAuth authorization server, not an OIDC provider)
+  - single coarse scope; no least-privilege option
+  - the Public API sits outside this model entirely, on long-lived api keys with no scoping

@@ -1,4 +1,4 @@
-generated: '2026-07-11'
+generated: '2026-08-14'
 method: probed
 source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
 hosts:
@@ -10,7 +10,7 @@ hosts:
 - host: university.clay.com
   https: true
   tls_version: TLSv1.3
-  cert_expires: Aug 15 21:12:16 2026 GMT
+  cert_expires: Oct 13 22:43:28 2026 GMT
   hsts: false
 - host: app.clay.com
   https: true

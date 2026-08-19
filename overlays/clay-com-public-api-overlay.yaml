@@ -1,0 +1,98 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Clay Public API
+  version: 1.0.0
+extends: openapi/clay-com-public-api-openapi.json
+x-generated: '2026-08-14'
+x-method: generated
+x-source: >-
+  Derived from artifacts in this repo — conventions/, errors/, rate-limits/, lifecycle/,
+  scopes/, mcp/ and data-model/. Captures API Evangelist annotations WITHOUT mutating the
+  harvested spec, which is saved verbatim as fetched from
+  https://developers.clay.com/openapi.json.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: clay-com
+    x-apievangelist-harvested: '2026-08-14'
+    x-apievangelist-source: https://developers.clay.com/openapi.json
+    x-apievangelist-ownership-check: >-
+      Verified as Clay's own contract: info.title "Clay Public API", info.contact.url
+      https://www.clay.com, servers[] https://api.clay.com/public/v0, and the security
+      scheme describes a key created "under Settings → Account in the Clay app". All four
+      self-descriptions point at clay.com.
+    x-apievangelist-maturity: v0
+    x-apievangelist-notes: >-
+      info.version is literally "0" and API keys are labelled beta in the Clay UI. Treat
+      this as an unstable surface.
+- target: $.info
+  update:
+    x-agent-surfaces:
+      mcp: https://api.clay.com/v3/mcp
+      mcp_auth: oauth2 scope `mcp`
+      cli: clay (v0.3.0, github.com/clay-run/agent-plugins)
+      agent_card: https://developers.clay.com/.well-known/agent-card.json
+      agent_skills: 22 provider-published skills harvested to skills/
+      llms_txt: https://developers.clay.com/llms.txt
+- target: $
+  update:
+    x-conventions:
+      pagination: [cursor, stateful-iterator]
+      pagination_note: 'Stateful iterators (has_more) are not replayable — a retried page loses records.'
+      idempotency: none
+      idempotency_note: >-
+        No Idempotency-Key is published. Retrying a timed-out POST /routines/{id}/run can
+        execute and charge the routine twice.
+      error_envelope: '{ "message": "..." } — not RFC 9457, no stable error codes'
+      async: '202-then-poll; the terminal status set is explicitly open-ended'
+      rate_limit_headers: [Retry-After, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset]
+      rate_limit_numbers_published: false
+      artifact: conventions/clay-com-conventions.yml
+- target: $
+  update:
+    x-metering:
+      units: [actions, data credits]
+      exhaustion_status: 402
+      note: >-
+        Requests are billed against the workspace's monthly actions and data-credit meters,
+        not as API requests. HTTP 402 on the search operations means the meter is exhausted,
+        not that the request was malformed.
+      artifact: plans/clay-com-plans-pricing.yml
+- target: $.paths['/routines/{routine_id}/run'].post
+  update:
+    x-apievangelist-caution: >-
+      Consequence-bearing and metered. This operation spends credits and has no idempotency
+      key, so an agent must not blind-retry it on timeout. Poll getRunResults with the run
+      id instead.
+    x-agentic-consequence: write
+- target: $.paths['/routines/{routine_id}/run-batch/start'].post
+  update:
+    x-apievangelist-caution: >-
+      Fans out a routine over an entire uploaded JSONL file. The highest-consequence,
+      highest-cost operation in the API. Documented ceiling is 50,000 rows.
+    x-agentic-consequence: write
+- target: $.paths['/search/filters-mode/fields'].get
+  update:
+    x-apievangelist-note: >-
+      Schema-discovery operation. Clay documents calling this BEFORE createFilters to learn
+      the legal filter fields, their types, allowed values and usage guidance for a source
+      type — an unusually agent-friendly design worth highlighting.
+    x-agentic-consequence: read
+- target: $.paths['/search/query-mode/reference'].get
+  update:
+    x-apievangelist-note: >-
+      Returns the Clay advanced-search query grammar as markdown, over the API. An agent can
+      learn the query language at runtime rather than being trained on it.
+    x-agentic-consequence: read
+- target: $.paths['/tables/query'].post
+  update:
+    x-apievangelist-note: >-
+      Enterprise-only. Non-Enterprise workspaces receive 403. Scans return rows in
+      least-recently-updated-first order and reflect writes that land mid-pagination.
+    x-agentic-consequence: read
+- target: $.components.securitySchemes.ClayApiKey
+  update:
+    x-apievangelist-note: >-
+      Long-lived personal key with no scoping and no expiry, tied to a user and that user's
+      workspace access. Distinct from the OAuth surface (scope `mcp`) that gates the CLI and
+      MCP server — see scopes/clay-com-scopes.yml.

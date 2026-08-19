@@ -1,0 +1,100 @@
+generated: '2026-08-14'
+method: searched
+source: >-
+  https://github.com/clay-run/agent-plugins (releases API), registry.npmjs.org metadata
+  endpoints, and https://developers.clay.com/quickstart
+note: >-
+  Clay ships NO conventional server-side SDK on npm, PyPI, RubyGems, Maven Central,
+  NuGet, crates.io, Packagist or pkg.go.dev for the current Clay Public API. Its
+  first-party client is a compiled CLI binary distributed through GitHub Releases on the
+  official agent-plugin repo — there is no package-registry metadata endpoint to query
+  for it, so the version is read from the release tag and the pinned `clay/bin/cli-version`
+  file. The three npm packages below are genuine first-party libraries from the same
+  GitHub org, but they belong to the ABANDONED 2017-2020 "Clay Run" functions-as-a-service
+  product, not to today's GTM platform; they are recorded with their real last-publish
+  dates because a six-to-nine-year-old first-party client is decay evidence, not coverage.
+  DISAMBIGUATION: the npm package `clay-cli` ("Web Tool to publish and manage Web Sites
+  and Apps") is NOT this Clay — it belongs to the unrelated Clay CMS project
+  (github.com/clay/claycli) and is deliberately excluded.
+packages:
+- language: multi
+  registry: github-releases
+  name: clay
+  url: https://github.com/clay-run/agent-plugins/releases/tag/clay-cli-v0.3.0
+  install: /plugin marketplace add clay-run/agent-plugins && /plugin install clay@clay-plugins
+  official: true
+  version: '0.3.0'
+  published: '2026-08-11'
+  artifacts: [clay-darwin-arm64, clay-darwin-x64, clay-linux-arm64, clay-linux-x64]
+  checksums: https://raw.githubusercontent.com/clay-run/agent-plugins/main/clay/bin/checksums.txt
+  note: >-
+    The `clay` CLI — Clay's primary first-party client and its stdio MCP server
+    (`clay mcp`). Distributed as a checksum-verified per-platform binary from GitHub
+    Releases; `clay/bin/clay` is a shim that resolves the pinned version on first use.
+    Actively released — 10 tagged releases between 2026-07-29 and 2026-08-11. No Windows
+    binary is published.
+- language: multi
+  registry: github
+  name: clay-run/agent-plugins
+  url: https://github.com/clay-run/agent-plugins
+  install: /plugin marketplace add clay-run/agent-plugins
+  official: true
+  version: '2.4.0'
+  published: '2026-08-12'
+  note: >-
+    The official Clay agent plugin for Claude Code, Codex and Cursor. Version read from
+    clay/.claude-plugin/plugin.json; published date is the repo's last push. Bundles the
+    CLI, the MCP server registration and 21 Agent Skills (harvested to skills/).
+    Not a package-registry artifact — there is no registry metadata endpoint for it.
+- language: javascript
+  registry: npm
+  name: clay-client
+  url: https://www.npmjs.com/package/clay-client
+  install: npm install clay-client
+  official: true
+  version: '0.2.1'
+  published: '2017-10-25'
+  status: abandoned
+  note: >-
+    Node client for the legacy Clay Run cloud-functions product
+    (github.com/clay-run/clay-client, last pushed 2019-10-29). Nearly nine years since its
+    last publish and it does not target the Clay Public API at api.clay.com/public/v0.
+- language: javascript
+  registry: npm
+  name: clay-base-sdk
+  url: https://www.npmjs.com/package/clay-base-sdk
+  install: npm install clay-base-sdk
+  official: true
+  version: '0.0.66'
+  published: '2020-04-20'
+  status: abandoned
+  note: >-
+    Node SDK for Clay Bases, the retired database product
+    (github.com/clay-run/clay-base-sdk, last pushed 2018-12-29). Superseded; not usable
+    against the current API.
+- language: javascript
+  registry: npm
+  name: clayrun
+  url: https://www.npmjs.com/package/clayrun
+  install: npm install clayrun
+  official: true
+  version: '0.5.2'
+  published: '2017-09-18'
+  status: abandoned
+  note: Original "Clay Run" cloud-command CLI. Historical only.
+registries_checked:
+- {registry: npm, endpoint: 'https://registry.npmjs.org/<pkg>', result: 3 legacy first-party packages found; no current SDK}
+- {registry: npm, endpoint: 'https://registry.npmjs.org/@clay-run/cli', result: 404}
+- {registry: npm, endpoint: 'https://registry.npmjs.org/@clayhq/cli', result: 404}
+- {registry: pypi, result: no first-party Clay GTM package}
+- {registry: rubygems, result: none}
+- {registry: crates.io, result: none}
+- {registry: packagist, result: none}
+- {registry: nuget, result: none}
+- {registry: maven-central, result: none}
+- {registry: pkg.go.dev, result: none}
+summary:
+  official_current: 2
+  official_abandoned: 3
+  registry_distributed_current_sdk: 0
+  primary_distribution: github-releases

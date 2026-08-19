@@ -1,0 +1,95 @@
+generated: '2026-08-14'
+method: searched
+source: https://www.clay.com/changelog
+docs: https://www.clay.com/changelog
+scheme: dated-product-changelog
+current_version: null
+note: >-
+  Clay publishes a real, dated product changelog at https://www.clay.com/changelog, and a
+  separately versioned release stream for the `clay` CLI on GitHub. It publishes NO
+  versioned changelog for the Public API itself — the API is at v0 with info.version "0",
+  and API-affecting changes appear as product-changelog entries alongside UI features
+  rather than as versioned API release notes. Both streams are recorded below; neither is
+  invented, and the gap between them is the finding.
+streams:
+- name: Clay product changelog
+  url: https://www.clay.com/changelog
+  cadence: weekly product roundups plus feature posts
+  scheme: dated
+  covers: [product features, integrations, some developer/API changes]
+  api_coverage: partial
+- name: Clay CLI releases
+  url: https://github.com/clay-run/agent-plugins/releases
+  cadence: 'very high — 10 tagged releases between 2026-07-29 and 2026-08-11'
+  scheme: semver
+  current_version: '0.3.0'
+  covers: [the clay CLI binary and the stdio MCP server it hosts]
+  note: >-
+    Release notes are one line each ("Standalone Clay CLI <v> binaries, consumed by the
+    Clay agent plugin") with no itemized changes, so the tags are dated but not descriptive.
+- name: Clay community announcements
+  url: https://community.clay.com/x/announcements
+  scheme: dated
+  covers: [major launches, including the API and CLI launch and the SOC 2 announcement]
+- name: Clay Public API
+  url: null
+  scheme: null
+  covers: []
+  note: No dedicated API changelog or release-notes page exists. developers.clay.com/changelog and /updates both return 404.
+entries:
+- date: '2026-08-11'
+  version: '0.3.0'
+  stream: cli
+  type: additions
+  breaking: false
+  highlights: [Clay CLI 0.3.0 binaries released]
+- date: '2026-08-11'
+  version: '0.2.0'
+  stream: cli
+  type: additions
+  breaking: unknown
+  highlights: [Clay CLI 0.2.0 — a minor-version bump on the same day as 0.3.0, with no itemized notes]
+- date: '2026-08-10'
+  stream: product
+  title: Product Roundup Week of Aug 3, 2026
+  breaking: false
+- date: '2026-08-10'
+  version: 0.1.27
+  stream: cli
+  type: additions
+  breaking: false
+- date: '2026-08-04'
+  stream: product
+  title: Clay Ads 2.0
+  breaking: false
+- date: '2026-08-03'
+  stream: product
+  title: Product Roundup Week of Jul 27, 2026
+  breaking: false
+- date: '2026-07-27'
+  stream: product
+  title: Product Roundup Week of Jul 20, 2026
+  breaking: false
+- date: '2026-07-16'
+  stream: product
+  title: New Open Weight Models for Claygent
+  breaking: false
+developer_relevant_entries:
+- title: Agent plugin (CLI/API)
+  stream: product
+  description: Launch of the developer surface — the `clay` CLI and Public API for building with Clay from a coding agent.
+  reference: https://www.clay.com/blog/build-on-clay-with-agent-plugin
+- title: CLI Device Login
+  stream: product
+  description: '`clay login --device` for headless authentication.'
+- title: Clay MCP in Codex
+  stream: product
+  description: Clay's MCP server made available inside OpenAI Codex.
+  reference: https://www.clay.com/blog/clay-mcp-is-now-available-in-codex
+- title: HTTP API pagination support
+  stream: product
+  description: Pagination support added to the in-table HTTP API enrichment column.
+gaps:
+- No changelog entry is tied to a Public API version or to a specific operationId.
+- CLI releases carry no itemized notes, so a consumer cannot tell what changed between 0.1.27 and 0.3.0.
+- 'A prior API version has already been retired (GET https://api.clay.com/v1/openapi.json -> 404 "deprecated API endpoint") with no changelog entry recording it.'

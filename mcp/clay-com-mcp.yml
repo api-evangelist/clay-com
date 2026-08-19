@@ -1,0 +1,84 @@
+generated: '2026-08-14'
+method: searched
+status: published
+source: https://developers.clay.com/quickstart
+deployment:
+  mode: both
+  endpoint: https://api.clay.com/v3/mcp
+  install: /plugin marketplace add clay-run/agent-plugins && /plugin install clay@clay-plugins
+  package: https://github.com/clay-run/agent-plugins
+  auth: oauth
+  verified: probed
+  note: >-
+    Clay ships BOTH agent surfaces. (1) REMOTE: a hosted streamable-HTTP MCP endpoint at
+    https://api.clay.com/v3/mcp that any MCP client can POST to today — probed 2026-08-14,
+    it answered HTTP 401 with a spec-correct
+    `WWW-Authenticate: Bearer resource_metadata="https://api.clay.com/.well-known/oauth-protected-resource/v3/mcp"`
+    challenge, which is the RFC 9728 handshake, so the endpoint is live and OAuth-gated
+    rather than absent. (2) LOCAL-STDIO: the official agent plugin at
+    github.com/clay-run/agent-plugins bundles the `clay` CLI binary and registers
+    `{"command":"clay","args":["mcp"]}` as a stdio MCP server, for Claude Code, Codex and
+    Cursor. The stdio server is the same product reached through the local binary; the
+    remote endpoint is the one an agent can reach without a human installing anything.
+server:
+  name: clay
+  transport: http
+  url: https://api.clay.com/v3/mcp
+  stdio_command: clay
+  stdio_args: [mcp]
+  stdio_config_source: https://raw.githubusercontent.com/clay-run/agent-plugins/main/clay/mcp.json
+  plugin:
+    marketplace: clay-plugins
+    plugin: clay
+    version: '2.4.0'
+    cli_version: '0.3.0'
+    repo: https://github.com/clay-run/agent-plugins
+    targets: [claude-code, codex, cursor]
+authentication:
+  scheme: oauth2
+  gated: true
+  authorization_server: https://api.clay.com
+  metadata:
+    oauth_authorization_server: well-known/clay-com-oauth-authorization-server.json
+    oauth_protected_resource: well-known/clay-com-oauth-protected-resource.json
+  scopes: [mcp]
+  grant_types: [authorization_code, refresh_token, 'urn:ietf:params:oauth:grant-type:device_code']
+  pkce: [S256]
+  dynamic_client_registration: https://api.clay.com/oauth/register
+tools:
+  status: gated
+  note: >-
+    tools/list requires an authenticated bearer token, so the live inputSchema set could
+    not be introspected anonymously. NO TOOL LIST IS FABRICATED HERE. The capability
+    surface below is transcribed from Clay's own published documentation and skills, and
+    each capability is bound to a real Public API operationId in
+    mcp/clay-com-tool-crosswalk.yml. Authenticated introspection is required to record
+    exact tool names and input schemas.
+  probe:
+    url: https://api.clay.com/v3/mcp
+    method: POST
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    http_status: 401
+    response: '{"type":"Unauthorized","message":"You must be logged in","oauth":{"resource":"https://api.clay.com/v3/mcp","authorization_servers":["https://api.clay.com"]}}'
+capabilities:
+- name: search companies and people
+  description: Search Clay's proprietary GTM database of companies and people from natural language.
+  documented: https://developers.clay.com/searches
+- name: run enrichment routines
+  description: Execute Clay-managed functions, custom functions and Workflows against records.
+  documented: https://developers.clay.com/routines/index
+- name: query tables
+  description: Run structured queries across Clay tables (Enterprise).
+  documented: https://developers.clay.com/tables
+x-evidence:
+  fetched: '2026-08-14'
+  urls:
+  - url: https://api.clay.com/v3/mcp
+    http_status: 401
+    note: live, OAuth-gated, RFC 9728 WWW-Authenticate challenge
+  - url: https://api.clay.com/.well-known/oauth-protected-resource/v3/mcp
+    http_status: 200
+  - url: https://api.clay.com/.well-known/oauth-authorization-server
+    http_status: 200
+  - url: https://raw.githubusercontent.com/clay-run/agent-plugins/main/clay/mcp.json
+    http_status: 200

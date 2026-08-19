@@ -1,0 +1,101 @@
+generated: '2026-08-14'
+method: searched
+source: https://developers.clay.com/concepts/cli-basics
+docs: https://developers.clay.com/concepts/cli-basics
+name: clay
+version: '0.3.0'
+released: '2026-08-11'
+repo: https://github.com/clay-run/agent-plugins
+summary: >-
+  The `clay` CLI is Clay's primary programmatic surface and is explicitly designed for
+  agents rather than humans: JSON-only on stdout, a structured error envelope on stderr,
+  typed exit codes, and no spinners, colors or progress bars. It also doubles as Clay's
+  stdio MCP server via `clay mcp`.
+install:
+- method: agent-plugin
+  command: /plugin marketplace add clay-run/agent-plugins
+  then: /plugin install clay@clay-plugins
+  hosts: [Claude Code, Codex, Cursor]
+  note: Requires Claude Code v2.1.91 or higher. The plugin's `setup` skill puts `clay` on PATH, signs in, and verifies the CLI and MCP server.
+- method: github-release-binary
+  url: https://github.com/clay-run/agent-plugins/releases/tag/clay-cli-v0.3.0
+  platforms: [darwin-arm64, darwin-x64, linux-arm64, linux-x64]
+  note: Checksum-verified. No Windows binary published.
+authentication:
+  command: clay login
+  flow: browser OAuth
+  headless: clay login --device
+  headless_note: Prints a link and a short code for device-code approval — for SSH sessions, containers and headless machines.
+  verify: clay whoami
+  clear: clay logout
+  credential_store: ~/.config/clay/ (or $CLAY_CONFIG_HOME/clay, or $XDG_CONFIG_HOME/clay)
+  note: The workspace is resolved from the stored session; there is no workspace id to pass.
+output_contract:
+  success: JSON written to stdout, exit code 0
+  failure: '{ "error": { "code", "message", "details"? } } written to stderr, non-zero exit code'
+  discovery: '`clay --help` is documented as the authoritative, machine-readable list of command groups'
+exit_codes:
+- {code: 0, meaning: success}
+- {code: 1, meaning: 'generic or unrecoverable — server_error, contract_mismatch, conflict, internal_error, invalid_config_file'}
+- {code: 2, meaning: 'validation_error — input rejected as malformed'}
+- {code: 3, meaning: 'auth_required | auth_invalid | auth_forbidden — run clay login'}
+- {code: 4, meaning: 'rate_limited (HTTP 429) — details.retryAfter in seconds, plus limit/remaining/reset when the X-RateLimit-* headers are present'}
+- {code: 5, meaning: 'network_error | network_timeout'}
+- {code: 6, meaning: 'not_found (HTTP 404)'}
+environment:
+- {name: CLAY_CONFIG_HOME, purpose: 'highest-precedence config directory parent; config.json and cache.json live under <CLAY_CONFIG_HOME>/clay'}
+- {name: XDG_CONFIG_HOME, purpose: 'used when CLAY_CONFIG_HOME is unset, falling back to ~/.config/clay'}
+- {name: CLAY_REQUEST_TIMEOUT_MS, purpose: 'per-request network timeout in ms (default 60000)'}
+- {name: CLAY_UPLOAD_TIMEOUT_MS, purpose: 'bulk file-upload timeout in ms (default 600000)'}
+- {name: CLAY_PUBLIC_API_KEY, purpose: 'Public API key used by the documented curl examples (header clay-api-key)'}
+command_groups:
+- group: auth
+  commands:
+  - {command: clay login, purpose: authenticate with OAuth (opens browser)}
+  - {command: clay login --device, purpose: authenticate on headless machines}
+  - {command: clay whoami, purpose: verify authentication is working}
+  - {command: clay logout, purpose: clear stored credentials}
+- group: routines
+  commands:
+  - {command: clay routines list, purpose: list available routines (functions and workflows)}
+  - {command: 'clay routines runs start <routine_id> --input <json>', purpose: run a single routine with JSON input, rest: runRoutine}
+  - {command: 'clay routines runs start <routine_id> --bulk rows.jsonl', purpose: batch-run a routine with JSONL input, rest: startRoutineRunBatch}
+  - {command: 'clay routines runs get <run_id>', purpose: fetch results of an inline or bulk run, rest: getRunResults}
+  - {command: clay routines runs list, purpose: list routine runs}
+- group: searches
+  commands:
+  - {command: 'clay searches create --source-type people --query <query>', purpose: create a search in advanced query mode, rest: createQueryMode}
+  - {command: 'clay searches run <search_id>', purpose: fetch the next page of search results, rest: runQueryMode}
+- group: tables
+  commands:
+  - {command: clay tables ..., purpose: 'query and diagnose Clay tables (Enterprise); see the tables skills for the analyze, capacity, error-sweep, trace and value-trace flows', rest: query}
+- group: webhooks
+  commands:
+  - {command: 'clay webhooks create <url>', purpose: 'register a webhook; returns the signing secret exactly once'}
+  - {command: clay webhooks list, purpose: list registered webhooks}
+  - {command: clay webhooks test, purpose: send a test delivery}
+  - {command: clay webhooks delete, purpose: remove a webhook}
+- group: audiences
+  commands:
+  - {command: 'clay audiences archive <audienceId>', purpose: 'soft-delete an audience (idempotent; records untouched)'}
+- group: workflows
+  commands:
+  - {command: clay workflows ..., purpose: 'build, edit, validate, run, inspect and batch-run Workflows (Alpha) — CLI/plugin only, no REST equivalent'}
+- group: mcp
+  commands:
+  - {command: clay mcp, purpose: run the Clay MCP server over stdio (this is what the agent plugin registers)}
+key_flows:
+- name: search then enrich
+  steps: [clay searches create, clay searches run, clay routines runs start]
+  docs: https://developers.clay.com/recipes/search-and-enrich
+- name: batch enrichment over JSONL
+  steps: ['clay routines runs start <id> --bulk rows.jsonl', clay routines runs get]
+  docs: https://developers.clay.com/routines/batch-runs
+- name: webhook-driven completion
+  steps: [clay webhooks create, 'start a run with webhook_id', 'verify X-Clay-Signature', clay routines runs get]
+  docs: https://developers.clay.com/public-api/webhooks
+note: >-
+  The full command surface is only enumerable from an authenticated `clay --help`; the
+  groups above are transcribed from Clay's published docs and its own skill files. Groups
+  are recorded, not invented — `clay --help` is documented as listing "workflows, tables,
+  routines, webhooks, and more", so this list may be incomplete rather than wrong.

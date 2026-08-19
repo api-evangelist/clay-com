@@ -4,7 +4,10 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Clay
 providerId: clay-com
 created: '2026-05-22'
-modified: '2026-05-22'
+modified: '2026-08-14'
+generated: '2026-08-14'
+method: searched
+source: https://www.clay.com/pricing
 tags:
 - Prospecting
 - GTM
@@ -13,40 +16,94 @@ tags:
 - Automation
 - AI
 - Webhooks
-description: Machine-readable plans scaffold for the Clay API surface. Conforms to the API Commons Plans schema. Tier limits
-  and prices are scaffold defaults; replace with provider-published values.
+description: >-
+  Clay's published plans, read from https://www.clay.com/pricing on 2026-08-14. REPLACES a
+  scaffold that invented a "1,000 API requests/month" quota Clay has never published.
+  Clay does not sell API access as a separate product and publishes no API-specific plan:
+  the Public API, the CLI and the MCP server all draw on the SAME workspace meters as the
+  Clay UI — monthly ACTIONS and DATA CREDITS. Seats are unlimited on every tier, so the
+  meter, not the seat, is the unit of cost.
+plan_count: 4
+currency: USD
+billing_periods: [monthly, annual]
+annual_discount: '10% versus monthly billing'
+metering_model:
+  units:
+  - name: actions
+    description: Workflow/automation operations run inside Clay, including routine runs driven through the API, CLI and MCP.
+  - name: data credits
+    description: Credits consumed when enriching a record from Clay's data providers.
+  note: >-
+    A Public API call is not billed as "an API request" — it is billed as the actions and
+    data credits the routine or search it triggers consumes. This is why an API request
+    quota does not appear anywhere in Clay's pricing.
 plans:
 - id: clay-com-free
   name: Free
   type: freemium
-  description: Free entry tier for the Clay API surface. Intended for evaluation, prototyping, and low-volume integrations.
-    Real limits and pricing must be reconciled with the provider's published plan documentation.
+  price: '0.00'
+  currency: USD
+  timeFrame: month
+  description: Free entry tier. Includes API-key access; Tables querying is not included (Enterprise only).
   entries:
-  - label: API Requests
-    description: Monthly API request quota across all included endpoints
-    name: api_requests
-    type: quota
-    metric: requests
-    limit: 1000
-    timeFrame: month
-    geo: global
-    domains:
-    - https://university.clay.com/docs
-    unit: 1
-    price: '0.00'
-    userMultiplied: false
-  - label: Rate Limit
-    description: Maximum requests per minute on the free tier
-    name: rate_limit
-    type: rate
-    metric: requests_per_minute
-    limit: 10
-    timeFrame: minute
-    geo: global
-    domains:
-    - https://university.clay.com/docs
-    unit: 1
-    price: '0.00'
+  - {label: Actions, name: actions, type: quota, metric: actions, limit: 500, timeFrame: month, unit: 1, price: '0.00'}
+  - {label: Actions (annual), name: actions_annual, type: quota, metric: actions, limit: 6000, timeFrame: year, unit: 1, price: '0.00'}
+  - {label: Data credits, name: data_credits, type: quota, metric: credits, limit: 100, timeFrame: month, unit: 1, price: '0.00'}
+  - {label: Data credits (annual), name: data_credits_annual, type: quota, metric: credits, limit: 1200, timeFrame: year, unit: 1, price: '0.00'}
+  - {label: Seats, name: seats, type: quota, metric: users, limit: null, timeFrame: month, unit: 1, price: '0.00', note: unlimited}
+  - {label: Rows per table, name: rows_per_table, type: limit, metric: rows, limit: 200, unit: 1, note: 'documented as "Run up to 200 rows per table"'}
+- id: clay-com-launch
+  name: Launch
+  type: paid
+  price: '167.00'
+  currency: USD
+  timeFrame: month
+  description: Entry paid tier. Starting price and starting quotas; the tier is expandable to higher quotas at higher prices.
+  entries:
+  - {label: Actions, name: actions, type: quota, metric: actions, limit: 15000, timeFrame: month, unit: 1, price: '167.00', note: 'starting quota; expandable to 200,000/month'}
+  - {label: Actions (annual), name: actions_annual, type: quota, metric: actions, limit: 180000, timeFrame: year, unit: 1}
+  - {label: Data credits, name: data_credits, type: quota, metric: credits, limit: 3000, timeFrame: month, unit: 1, note: 'starting quota; expandable to 50,000/month'}
+  - {label: Data credits (annual), name: data_credits_annual, type: quota, metric: credits, limit: 30000, timeFrame: year, unit: 1}
+  - {label: Seats, name: seats, type: quota, metric: users, limit: null, unit: 1, note: unlimited}
+- id: clay-com-growth
+  name: Growth
+  type: paid
+  price: '446.00'
+  currency: USD
+  timeFrame: month
+  recommended: true
+  description: Clay's recommended tier. Starting price and starting quotas; expandable.
+  entries:
+  - {label: Actions, name: actions, type: quota, metric: actions, limit: 40000, timeFrame: month, unit: 1, price: '446.00', note: 'starting quota; expandable to 200,000/month'}
+  - {label: Actions (annual), name: actions_annual, type: quota, metric: actions, limit: 480000, timeFrame: year, unit: 1}
+  - {label: Data credits, name: data_credits, type: quota, metric: credits, limit: 6000, timeFrame: month, unit: 1, note: 'starting quota; expandable to 50,000/month'}
+  - {label: Data credits (annual), name: data_credits_annual, type: quota, metric: credits, limit: 72000, timeFrame: year, unit: 1}
+  - {label: Seats, name: seats, type: quota, metric: users, limit: null, unit: 1, note: unlimited}
+- id: clay-com-enterprise
+  name: Enterprise
+  type: custom
+  price: null
+  currency: USD
+  timeFrame: month
+  description: >-
+    Custom pricing, requires a demo. This is the only tier that unlocks the Tables query
+    operation in the Public API (POST /tables/query is documented as Enterprise-only).
+  entries:
+  - {label: Actions, name: actions, type: quota, metric: actions, limit: null, unit: 1, note: custom}
+  - {label: Data credits, name: data_credits, type: quota, metric: credits, limit: null, unit: 1, note: custom}
+  - {label: Seats, name: seats, type: quota, metric: users, limit: null, unit: 1, note: unlimited}
+  features: [SSO, RBAC, dedicated growth strategist, onboarding and co-building included, 'Tables API access']
+api_access_by_plan:
+  public_api: all plans (API keys are labelled beta in the Clay UI)
+  cli_and_mcp: all plans (OAuth sign-in)
+  tables_query: Enterprise only
+  note: >-
+    Clay publishes no plan gate on the Public API itself; the gate is on features (Tables)
+    and on the metered actions/credits balance, which surfaces at runtime as HTTP 402.
 references:
-- name: Clay API Documentation
-  url: https://raw.githubusercontent.com/api-evangelist/clay-com/refs/heads/main/apis.yml
+- name: Clay pricing
+  url: https://www.clay.com/pricing
+- name: Clay for enterprise teams
+  url: https://www.clay.com/enterprise
+- name: Tables (Enterprise) developer docs
+  url: https://developers.clay.com/tables

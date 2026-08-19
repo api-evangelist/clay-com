@@ -1,0 +1,17 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/clay-com-public-api-openapi.json
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+schemes:
+- name: ClayApiKey
+  type: apiKey
+  in: header
+  parameter: clay-api-key
+  description: Personal API key tied to your Clay user. Create one under Settings → Account
+    in the Clay app.
+  sources:
+  - openapi/clay-com-public-api-openapi.json

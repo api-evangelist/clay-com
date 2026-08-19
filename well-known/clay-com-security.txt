@@ -1,0 +1,12 @@
+# Clay Labs Inc. — security contact information
+# If you believe you've found a security issue involving Clay or
+# content on clay.com, please contact us before filing third-party
+# reports.
+
+Contact: mailto:security@clay.com
+Contact: https://trust.clay.com
+Expires: 2027-07-31T00:00:00.000Z
+Policy: https://trust.clay.com
+Preferred-Languages: en
+Canonical: https://clay.com/.well-known/security.txt
+Canonical: https://www.clay.com/.well-known/security.txt

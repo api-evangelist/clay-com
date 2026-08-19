@@ -1,0 +1,122 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/clay-com-public-api-openapi.json
+note: >-
+  Clay's MCP tools/list is OAuth-gated (HTTP 401), so tool NAMES could not be read from
+  the live server. This crosswalk therefore binds Clay's DOCUMENTED MCP/CLI capability
+  areas — taken from Clay's own published skills in github.com/clay-run/agent-plugins and
+  from developers.clay.com — to the Public API operationIds that back them. Confidence is
+  set honestly: `medium` everywhere the binding is by documented semantics rather than by
+  an observed tool name. No tool name is invented; the `tool` column names the capability
+  as Clay's own skill files name it.
+surfaces:
+  openapi:
+    file: openapi/clay-com-public-api-openapi.json
+    server: https://api.clay.com/public/v0
+    operations: 13
+    auth: apiKey header clay-api-key
+    gated: false
+  mcp:
+    url: https://api.clay.com/v3/mcp
+    transport: streamable-http
+    auth: oauth2 (scope `mcp`)
+    gated: true
+    note: tools/list returns 401 without a bearer token
+  cli:
+    binary: clay
+    version: '0.3.0'
+    source: https://github.com/clay-run/agent-plugins
+    gated: true
+    note: '`clay --help` is the authoritative command surface; requires an authenticated session'
+  graphql:
+    present: false
+    note: >-
+      No GraphQL endpoint is published for Clay's own API. The pre-existing
+      graphql/clay-com-graphql.md in this repo documents the HTTP-column pattern for
+      calling THIRD-PARTY GraphQL endpoints from inside a Clay table, not a Clay GraphQL API.
+crosswalk:
+- tool: search (companies)
+  category: search
+  rest: [createFilters, fields, run]
+  binding: rest
+  confidence: medium
+  note: >-
+    Clay's `search` skill drives filter-mode search. fields lists the legal filter fields
+    for a source type, createFilters opens the search, run pages the iterator. The tool's
+    real input contract is the CreateSearchRequest + NextSearchResultsBody schemas.
+- tool: search (people)
+  category: search
+  rest: [createFilters, fields, run]
+  binding: rest
+  confidence: medium
+  note: Same operations; source_type discriminates people from companies.
+- tool: search (advanced query, beta)
+  category: search
+  rest: [createQueryMode, queryModeReference, runQueryMode]
+  binding: rest
+  confidence: medium
+  note: >-
+    queryModeReference returns the query-grammar reference markdown an agent reads before
+    authoring a query — an unusually agent-friendly operation.
+- tool: run routine
+  category: routines
+  rest: [runRoutine, getRunResults]
+  binding: rest
+  confidence: high
+  note: >-
+    `clay routines runs start <routine_id> --input <json>` maps 1:1 onto
+    POST /routines/{routine_id}/run (1-100 items), then GET /routines/run/{id}/results.
+    Documented verbatim in developers.clay.com/routines/api.
+- tool: batch run routine
+  category: routines
+  rest: [runRoutineBatchUploadUrl, startRoutineRunBatch, getRoutineRunBatchResults]
+  binding: rest
+  confidence: high
+  note: >-
+    `clay routines runs start <id> --bulk rows.jsonl` fans out to the documented
+    three-call flow: presigned upload-url, PUT the JSONL, start the batch, poll results.
+- tool: query tables
+  category: tables
+  rest: [query]
+  binding: rest
+  confidence: high
+  note: Enterprise-only. POST /tables/query with a StructuredQuery; cursor-paginated.
+- tool: whoami
+  category: identity
+  rest: [getPublicApiMe]
+  binding: rest
+  confidence: high
+  note: '`clay whoami` is the documented canonical auth check; GET /me is its REST twin.'
+mcp_only:
+- tool: workflows (create / edit / validate / inspect / snapshot)
+  reason: >-
+    Workflows are Alpha and are built and managed exclusively from the plugin, CLI and MCP.
+    No Workflow authoring operation exists in the Public API — the Public API can only RUN
+    a routine, not build one. This is a genuine surface divergence, not a mapping gap.
+    Documented at developers.clay.com/routines/workflows-alpha.
+- tool: webhooks (create / list / test / delete)
+  reason: >-
+    Webhook registration is CLI/MCP-only (`clay webhooks create <url>`). The Public API
+    accepts a `webhook_id` on a routine run but publishes no CRUD operation for webhooks.
+- tool: audiences (create / archive / list)
+  reason: Audience management is exposed through the CLI and the `audiences` skill; no public REST operation.
+- tool: table diagnostics (analyze / capacity / error-sweep / trace / value-trace)
+  reason: >-
+    Five dedicated Clay skills operate over table internals and dependency chains. The
+    Public API exposes only POST /tables/query, so the diagnostic surface has no REST twin.
+rest_only:
+- capability: search filter-field discovery
+  operations: [fields]
+  note: Exposed as an explicit REST operation; no separately named agent tool.
+- capability: query-grammar reference retrieval
+  operations: [queryModeReference]
+  note: Returns markdown documentation as an API response.
+coverage:
+  capabilities_named: 7
+  capabilities_bound: 7
+  mcp_only: 4
+  rest_operations_total: 13
+  rest_operations_with_a_binding: 13
+  rest_operations_without_a_binding: 0
+  tools_list_introspected: false
+  tools_list_http_status: 401
