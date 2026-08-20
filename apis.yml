@@ -26,6 +26,14 @@ accessModel:
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/clay-com.png
 tags:
 - Prospecting
+- Go-To-Market
+- Sales
+- Enrichment
+- Automation
+- Artificial Intelligence
+- Webhook
+tags_raw:
+- Prospecting
 - GTM
 - Sales
 - Enrichment
@@ -63,6 +71,10 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - Webhook
+  - Source
+  - Ingest
+  tags_raw:
   - Webhooks
   - Source
   - Ingest
@@ -78,6 +90,10 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - Webhook
+  - Action
+  - Export
+  tags_raw:
   - Webhooks
   - Action
   - Export
@@ -95,6 +111,10 @@ apis:
   baseURL: https://app.clay.com
   tags:
   - Tables
+  - Workflows
+  - Data
+  tags_raw:
+  - Tables
   - Workflow
   - Data
   properties:
@@ -110,6 +130,10 @@ apis:
   humanURL: https://www.clay.com/integrations
   baseURL: https://www.clay.com/integrations
   tags:
+  - Integration
+  - Marketplace
+  - Connectors
+  tags_raw:
   - Integrations
   - Marketplace
   - Connectors
@@ -148,6 +172,12 @@ apis:
   - OpenAPI
   - Search
   - Enrichment
+  - Go-To-Market
+  tags_raw:
+  - REST
+  - OpenAPI
+  - Search
+  - Enrichment
   - GTM
   properties:
   - type: OpenAPI
@@ -179,6 +209,10 @@ apis:
   humanURL: https://developers.clay.com/quickstart
   baseURL: https://api.clay.com/v3/mcp
   tags:
+  - MCP
+  - Agents
+  - Authentication
+  tags_raw:
   - MCP
   - Agents
   - OAuth
