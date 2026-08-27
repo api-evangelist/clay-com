@@ -47,10 +47,9 @@ apis:
 - aid: clay-com:http-api
   name: Clay HTTP API Enrichment
   description: >-
-    Generic HTTP request column inside Clay Tables that lets users call any
-    external REST or GraphQL endpoint with row-level variables and write the
-    response back into Clay. Acts as Clay's universal API client for
-    integrating arbitrary services into a workflow.
+    Generic HTTP request column inside Clay Tables that lets users call any external REST or GraphQL endpoint
+    with row-level variables and write the response back into Clay. Acts as Clay's universal API client
+    for integrating arbitrary services into a workflow.
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
@@ -65,9 +64,8 @@ apis:
 - aid: clay-com:webhooks-incoming
   name: Clay Incoming Webhooks
   description: >-
-    Webhook source that pushes data from any external system into a Clay
-    Table as new rows. Used to trigger Clay workflows from CRMs, signal
-    providers, and product events.
+    Webhook source that pushes data from any external system into a Clay Table as new rows. Used to trigger
+    Clay workflows from CRMs, signal providers, and product events.
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
@@ -84,9 +82,8 @@ apis:
 - aid: clay-com:webhooks-outgoing
   name: Clay Outgoing Webhooks
   description: >-
-    Action column that POSTs enriched row data to an external webhook URL,
-    used to deliver Clay-produced data to CRMs, sequencers, Slack, and custom
-    backends.
+    Action column that POSTs enriched row data to an external webhook URL, used to deliver Clay-produced
+    data to CRMs, sequencers, Slack, and custom backends.
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
@@ -103,9 +100,8 @@ apis:
 - aid: clay-com:tables
   name: Clay Tables
   description: >-
-    The core spreadsheet-style workspace that combines source rows,
-    enrichment columns, conditional logic, AI agents, and write-back
-    destinations. Tables are the unit of automation and the data plane every
+    The core spreadsheet-style workspace that combines source rows, enrichment columns, conditional logic,
+    AI agents, and write-back destinations. Tables are the unit of automation and the data plane every
     other integration reads from and writes to.
   humanURL: https://www.clay.com/learn/tables
   baseURL: https://app.clay.com
@@ -123,10 +119,9 @@ apis:
 - aid: clay-com:integrations
   name: Clay Integrations
   description: >-
-    Catalog of native connectors and 150+ data providers — Salesforce,
-    HubSpot, Pipedrive, Apollo, Clearbit, ZoomInfo, LinkedIn Sales Navigator,
-    Smartlead, Instantly, Apollo, OpenAI, and many more — exposed as source,
-    enrichment, signal, and export columns inside Clay Tables.
+    Catalog of native connectors and 150+ data providers — Salesforce, HubSpot, Pipedrive, Apollo, Clearbit,
+    ZoomInfo, LinkedIn Sales Navigator, Smartlead, Instantly, Apollo, OpenAI, and many more — exposed
+    as source, enrichment, signal, and export columns inside Clay Tables.
   humanURL: https://www.clay.com/integrations
   baseURL: https://www.clay.com/integrations
   tags:
@@ -143,9 +138,8 @@ apis:
 - aid: clay-com:chrome-extension
   name: Clay Chrome Extension
   description: >-
-    Browser extension for scraping LinkedIn profiles and other web pages
-    directly into Clay Tables, used to bootstrap prospect lists from manual
-    research.
+    Browser extension for scraping LinkedIn profiles and other web pages directly into Clay Tables, used
+    to bootstrap prospect lists from manual research.
   humanURL: https://chromewebstore.google.com/detail/clay/jcdciginbafocoljjicajneijiapongl
   baseURL: https://chromewebstore.google.com/detail/clay/jcdciginbafocoljjicajneijiapongl
   tags:
@@ -155,57 +149,14 @@ apis:
   properties:
   - type: Documentation
     url: https://university.clay.com/docs
-- aid: clay-com:public-api
-  name: Clay Public API
-  description: >-
-    Clay's REST API for programmatic access to the GTM platform — search Clay's
-    proprietary database of companies and people, run Clay-managed functions,
-    custom functions and Workflows as routines (inline for 1-100 items or in
-    batch over an uploaded JSONL file), poll asynchronous run results, and query
-    Clay tables with a structured filter tree. Authenticated with a personal
-    clay-api-key header. Published as OpenAPI 3.1.0 with 13 operations at
-    https://developers.clay.com/openapi.json.
-  humanURL: https://developers.clay.com
-  baseURL: https://api.clay.com/public/v0
-  tags:
-  - REST
-  - OpenAPI
-  - Search
-  - Enrichment
-  - Go-To-Market
-  tags_raw:
-  - REST
-  - OpenAPI
-  - Search
-  - Enrichment
-  - GTM
-  properties:
-  - type: OpenAPI
-    url: openapi/clay-com-public-api-openapi.json
-  - type: Overlay
-    url: overlays/clay-com-public-api-overlay.yaml
-  - type: APIReference
-    url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
-  - type: Documentation
-    url: https://developers.clay.com
-  - type: Authentication
-    url: https://developers.clay.com/public-api/authentication
-  - type: DataModel
-    url: data-model/clay-com-data-model.yml
-  - type: ErrorCatalog
-    url: errors/clay-com-problem-types.yml
-  - type: RateLimits
-    url: rate-limits/clay-com-rate-limits.yml
 - aid: clay-com:mcp
   name: Clay MCP Server
   description: >-
-    Clay's hosted remote Model Context Protocol server, letting an MCP client
-    search companies and people, run enrichment routines and query Clay tables
-    from natural language. Streamable HTTP at https://api.clay.com/v3/mcp,
-    gated by Clay's own OAuth 2.0 authorization server (scope `mcp`) with PKCE,
-    device-code and dynamic client registration. Also ships as a local stdio
-    server via `clay mcp` in Clay's official agent plugin for Claude Code,
-    Codex and Cursor.
+    Clay's hosted remote Model Context Protocol server, letting an MCP client search companies and people,
+    run enrichment routines and query Clay tables from natural language. Streamable HTTP at https://api.clay.com/v3/mcp,
+    gated by Clay's own OAuth 2.0 authorization server (scope `mcp`) with PKCE, device-code and dynamic
+    client registration. Also ships as a local stdio server via `clay mcp` in Clay's official agent plugin
+    for Claude Code, Codex and Cursor.
   humanURL: https://developers.clay.com/quickstart
   baseURL: https://api.clay.com/v3/mcp
   tags:
@@ -223,7 +174,97 @@ apis:
     url: mcp/clay-com-tool-crosswalk.yml
   - type: OAuthScopes
     url: scopes/clay-com-scopes.yml
+- aid: clay-com:clay-com-me-api
+  name: Clay Me API
+  description: Authenticated user and workspace endpoints.
+  humanURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
+  tags:
+  - me
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-me-api-openapi.yml
+  - type: APIReference
+    url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
+  - type: Documentation
+    url: https://developers.clay.com
+  - type: Authentication
+    url: https://developers.clay.com/public-api/authentication
+  - type: DataModel
+    url: data-model/clay-com-data-model.yml
+  - type: ErrorCatalog
+    url: errors/clay-com-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/clay-com-rate-limits.yml
+- aid: clay-com:clay-com-routines-api
+  name: Clay Routines API
+  description: Routine discovery and execution endpoints.
+  humanURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
+  tags:
+  - routines
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-routines-api-openapi.yml
+  - type: APIReference
+    url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
+  - type: Documentation
+    url: https://developers.clay.com
+  - type: Authentication
+    url: https://developers.clay.com/public-api/authentication
+  - type: DataModel
+    url: data-model/clay-com-data-model.yml
+  - type: ErrorCatalog
+    url: errors/clay-com-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/clay-com-rate-limits.yml
+- aid: clay-com:clay-com-search-api
+  name: Clay Search API
+  description: Search creation and pagination endpoints.
+  humanURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
+  tags:
+  - search
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-search-api-openapi.yml
+  - type: APIReference
+    url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
+  - type: Documentation
+    url: https://developers.clay.com
+  - type: Authentication
+    url: https://developers.clay.com/public-api/authentication
+  - type: DataModel
+    url: data-model/clay-com-data-model.yml
+  - type: ErrorCatalog
+    url: errors/clay-com-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/clay-com-rate-limits.yml
+- aid: clay-com:clay-com-tables-api
+  name: Clay Tables API
+  description: Structured table query endpoints.
+  humanURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
+  tags:
+  - tables
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-tables-api-openapi.yml
+  - type: APIReference
+    url: https://developers.clay.com/api-reference/me/get-the-authenticated-user
+  - type: Documentation
+    url: https://developers.clay.com
+  - type: Authentication
+    url: https://developers.clay.com/public-api/authentication
+  - type: DataModel
+    url: data-model/clay-com-data-model.yml
+  - type: ErrorCatalog
+    url: errors/clay-com-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/clay-com-rate-limits.yml
 common:
+- type: Overlay
+  url: overlays/clay-com-public-api-overlay.yaml
 - type: LLMsTxt
   url: llms/clay-com-llms.txt
 - type: AgentCard
