@@ -1,0 +1,94 @@
+openapi: 3.2.0
+info:
+  contact:
+    name: Clay
+    url: https://www.clay.com
+  description: Programmatic access to Clay.
+  title: Clay Public Me API
+  version: '0'
+servers:
+- description: production
+  url: https://api.clay.com/public/v0
+security:
+- ClayApiKey: []
+tags:
+- description: Authenticated user and workspace endpoints.
+  name: me
+paths:
+  /me:
+    get:
+      description: Returns the Clay user and workspace associated with the API key.
+      operationId: getPublicApiMe
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                properties:
+                  user:
+                    additionalProperties: false
+                    properties:
+                      cli_onboarded:
+                        type: boolean
+                      id:
+                        type: string
+                      name:
+                        anyOf:
+                        - type: string
+                        - type: 'null'
+                    required:
+                    - id
+                    - name
+                    type: object
+                  workspace:
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: string
+                    required:
+                    - id
+                    type: object
+                required:
+                - user
+                - workspace
+                type: object
+          description: '200'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Get the authenticated user
+      tags:
+      - me
+components:
+  schemas:
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+  securitySchemes:
+    ClayApiKey:
+      description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
+      in: header
+      name: clay-api-key
+      type: apiKey

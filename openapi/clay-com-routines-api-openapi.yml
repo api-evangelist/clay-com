@@ -1,0 +1,574 @@
+openapi: 3.2.0
+info:
+  contact:
+    name: Clay
+    url: https://www.clay.com
+  description: Programmatic access to Clay.
+  title: Clay Public Routines API
+  version: '0'
+servers:
+- description: production
+  url: https://api.clay.com/public/v0
+security:
+- ClayApiKey: []
+tags:
+- description: Routine discovery and execution endpoints.
+  name: routines
+paths:
+  /routines/run-batch/{routine_run_id}/results:
+    get:
+      description: Returns current status and results for an asynchronous batch routine run.
+      operationId: getRoutineRunBatchResults
+      parameters:
+      - in: path
+        name: routine_run_id
+        required: true
+        schema:
+          maxLength: 64
+          minLength: 1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResultsTerminal'
+          description: '200'
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResultsInProgress'
+          description: '202'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '404'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Fetch progress and results for a batch run
+      tags:
+      - routines
+  /routines/run/{routine_run_id}/results:
+    get:
+      description: Returns current status and paginated results for an asynchronous routine run.
+      operationId: getRunResults
+      parameters:
+      - in: path
+        name: routine_run_id
+        required: true
+        schema:
+          maxLength: 64
+          minLength: 1
+          type: string
+      - in: query
+        name: cursor
+        schema:
+          type: string
+      - in: query
+        name: limit
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResultsComplete'
+          description: '200'
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunResultsInProgress'
+          description: '202'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '404'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Fetch progress and results for a routine run
+      tags:
+      - routines
+  /routines/{routine_id}/run:
+    post:
+      description: Starts an asynchronous routine run for up to 100 input items.
+      operationId: runRoutine
+      parameters:
+      - in: path
+        name: routine_id
+        required: true
+        schema:
+          maxLength: 64
+          minLength: 1
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRoutineRequest'
+        description: Body
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunRoutineResponse'
+          description: '202'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '404'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Execute a routine against 1-100 items
+      tags:
+      - routines
+  /routines/{routine_id}/run-batch/start:
+    post:
+      description: Starts an asynchronous batch routine run over a previously uploaded JSONL file.
+      operationId: startRoutineRunBatch
+      parameters:
+      - in: path
+        name: routine_id
+        required: true
+        schema:
+          maxLength: 64
+          minLength: 1
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartBatchRequest'
+        description: Body
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartBatchResponse'
+          description: '202'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '404'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Start an async routine run-batch over an uploaded JSONL file
+      tags:
+      - routines
+  /routines/{routine_id}/run-batch/upload-url:
+    post:
+      description: Creates a presigned URL for uploading a JSONL file used by a batch routine run.
+      operationId: runRoutineBatchUploadUrl
+      parameters:
+      - in: path
+        name: routine_id
+        required: true
+        schema:
+          maxLength: 64
+          minLength: 1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchUploadUrlResponse'
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '404'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Issue a presigned PUT URL for uploading a batch input JSONL
+      tags:
+      - routines
+components:
+  schemas:
+    BatchResultsTerminal:
+      oneOf:
+      - $ref: '#/components/schemas/BatchResultsValidationFailed'
+      - $ref: '#/components/schemas/BatchResultsProcessingFailed'
+      - $ref: '#/components/schemas/BatchResultsComplete'
+    RunRoutineRequest:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: false
+            properties:
+              id:
+                maxLength: 64
+                minLength: 1
+                type: string
+              inputs:
+                additionalProperties: {}
+                type: object
+            required:
+            - id
+            - inputs
+            type: object
+          maxItems: 100
+          minItems: 1
+          type: array
+        webhook_id:
+          description: ID of a registered Clay webhook to notify when the run finishes.
+          maxLength: 64
+          minLength: 1
+          type: string
+      required:
+      - items
+      type: object
+    BatchResultsValidationFailed:
+      additionalProperties: false
+      properties:
+        error:
+          $ref: '#/components/schemas/BatchValidationError'
+        routine_run_id:
+          type: string
+        status:
+          const: validation_failed
+          type: string
+      required:
+      - routine_run_id
+      - status
+      - error
+      type: object
+    StartBatchRequest:
+      additionalProperties: false
+      properties:
+        file_id:
+          type: string
+        webhook_id:
+          description: ID of a registered Clay webhook to notify when the run finishes.
+          maxLength: 64
+          minLength: 1
+          type: string
+      required:
+      - file_id
+      type: object
+    BatchResultsProcessingFailed:
+      additionalProperties: false
+      properties:
+        error:
+          additionalProperties: false
+          properties:
+            message:
+              type: string
+          required:
+          - message
+          type: object
+        routine_run_id:
+          type: string
+        status:
+          const: processing_failed
+          type: string
+      required:
+      - routine_run_id
+      - status
+      - error
+      type: object
+    BatchResultsComplete:
+      additionalProperties: false
+      properties:
+        finished:
+          type: number
+        result_url:
+          format: uri
+          type: string
+        routine_run_id:
+          type: string
+        status:
+          const: complete
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      - result_url
+      type: object
+    BatchValidationError:
+      additionalProperties: false
+      properties:
+        details:
+          items:
+            $ref: '#/components/schemas/BatchValidationErrorDetail'
+          maxItems: 100
+          type: array
+        message:
+          type: string
+        total_invalid_rows:
+          type: number
+      required:
+      - message
+      - total_invalid_rows
+      - details
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+    RunResultItem:
+      additionalProperties: false
+      properties:
+        error:
+          additionalProperties: false
+          properties:
+            message:
+              type: string
+          required:
+          - message
+          type: object
+        id:
+          type: string
+        result:
+          additionalProperties: {}
+          type: object
+        status:
+          enum:
+          - complete
+          - failed
+          type: string
+      required:
+      - id
+      - status
+      type: object
+    BatchResultsInProgress:
+      additionalProperties: false
+      properties:
+        finished:
+          type: number
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      type: object
+    RunResultsComplete:
+      additionalProperties: false
+      properties:
+        cursor:
+          type: string
+        data:
+          items:
+            $ref: '#/components/schemas/RunResultItem'
+          type: array
+        finished:
+          type: number
+        routine_run_id:
+          type: string
+        status:
+          const: complete
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      - data
+      type: object
+    BatchValidationErrorDetail:
+      additionalProperties: false
+      properties:
+        field:
+          type: string
+        line_number:
+          type: number
+        message:
+          type: string
+      required:
+      - line_number
+      - field
+      - message
+      type: object
+    RunResultsInProgress:
+      additionalProperties: false
+      properties:
+        finished:
+          type: number
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      type: object
+    RunRoutineResponse:
+      additionalProperties: false
+      properties:
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+      required:
+      - routine_run_id
+      - status
+      type: object
+    BatchUploadUrlResponse:
+      additionalProperties: false
+      properties:
+        file_id:
+          type: string
+        upload_url:
+          format: uri
+          type: string
+      required:
+      - upload_url
+      - file_id
+      type: object
+    StartBatchResponse:
+      additionalProperties: false
+      properties:
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+      required:
+      - routine_run_id
+      - status
+      type: object
+  securitySchemes:
+    ClayApiKey:
+      description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
+      in: header
+      name: clay-api-key
+      type: apiKey

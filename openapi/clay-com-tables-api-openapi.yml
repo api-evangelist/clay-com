@@ -1,0 +1,412 @@
+openapi: 3.2.0
+info:
+  contact:
+    name: Clay
+    url: https://www.clay.com
+  description: Programmatic access to Clay.
+  title: Clay Public Tables API
+  version: '0'
+servers:
+- description: production
+  url: https://api.clay.com/public/v0
+security:
+- ClayApiKey: []
+tags:
+- description: Structured table query endpoints.
+  name: tables
+paths:
+  /tables/query:
+    post:
+      description: 'Runs a structured query against Clay table data and returns records with field metadata. Results are paginated: pass the returned cursor back to fetch the next page. Scans return rows in least-recently-updated-first order and reflect writes that land while you paginate — a scan returns every record visible when it started and picks up records written while it runs, and a record updated mid-scan can be returned again with fresher data, so deduplicate by id if you need each record once.'
+      operationId: query
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StructuredQueryRequest'
+        description: Body
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '404'
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '422'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Run a structured query across one or more tables
+      tags:
+      - tables
+components:
+  schemas:
+    QueryResponse:
+      additionalProperties: false
+      properties:
+        cursor:
+          type: string
+        data:
+          items:
+            additionalProperties:
+              $ref: '#/components/schemas/CellResult'
+            type: object
+          type: array
+        fields:
+          additionalProperties:
+            $ref: '#/components/schemas/FieldMeta'
+          type: object
+      required:
+      - data
+      type: object
+    FilterOr:
+      additionalProperties: false
+      properties:
+        or:
+          items:
+            $ref: '#/components/schemas/FilterExpression'
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - or
+      type: object
+    FilterAnd:
+      additionalProperties: false
+      properties:
+        and:
+          items:
+            $ref: '#/components/schemas/FilterExpression'
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - and
+      type: object
+    CellEmpty:
+      additionalProperties: false
+      properties:
+        status:
+          const: empty
+          type: string
+      required:
+      - status
+      type: object
+    FilterPredicate:
+      additionalProperties: false
+      properties:
+        field:
+          minLength: 1
+          type: string
+        op:
+          enum:
+          - '='
+          - '!='
+          - '>'
+          - '>='
+          - <
+          - <=
+          - contains
+          - not_contains
+          - starts_with
+          - ends_with
+          - in
+          - not_in
+          - is_empty
+          - is_not_empty
+          type: string
+        path:
+          $ref: '#/components/schemas/NestedPath'
+        value:
+          anyOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - items:
+              anyOf:
+              - type: string
+              - type: number
+            type: array
+      required:
+      - field
+      - op
+      type: object
+    FieldMeta:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+      - id
+      - name
+      - type
+      type: object
+    CellResult:
+      oneOf:
+      - $ref: '#/components/schemas/CellSuccess'
+      - $ref: '#/components/schemas/CellError'
+      - $ref: '#/components/schemas/CellPending'
+      - $ref: '#/components/schemas/CellEmpty'
+    CellSuccess:
+      additionalProperties: false
+      properties:
+        fields:
+          anyOf:
+          - additionalProperties: {}
+            type: object
+          - type: 'null'
+        is_stale:
+          const: true
+          type: boolean
+        status:
+          const: success
+          type: string
+        value: {}
+      required:
+      - status
+      - fields
+      type: object
+    FilterNot:
+      additionalProperties: false
+      properties:
+        not:
+          $ref: '#/components/schemas/FilterExpression'
+      required:
+      - not
+      type: object
+    AggregateSelect:
+      additionalProperties: false
+      properties:
+        as:
+          minLength: 1
+          type: string
+        field:
+          minLength: 1
+          type: string
+        fn:
+          enum:
+          - count
+          - sum
+          - avg
+          - max
+          - min
+          type: string
+        path:
+          $ref: '#/components/schemas/NestedPath'
+      required:
+      - fn
+      - field
+      - as
+      type: object
+    FieldSelect:
+      additionalProperties: false
+      properties:
+        as:
+          type: string
+        field:
+          minLength: 1
+          type: string
+        path:
+          $ref: '#/components/schemas/NestedPath'
+        table:
+          type: string
+      required:
+      - field
+      type: object
+    StructuredQueryRequest:
+      additionalProperties: false
+      properties:
+        cursor:
+          description: 'Opaque cursor from the previous response. Scans page in least-recently-updated-first order and reflect concurrent writes: a record updated mid-scan can be returned again, so deduplicate by id.'
+          type: string
+        limit:
+          default: 50
+          maximum: 100
+          minimum: 1
+          type: integer
+        query:
+          $ref: '#/components/schemas/StructuredQuery'
+      required:
+      - query
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+    NestedPath:
+      items:
+        minLength: 1
+        type: string
+      maxItems: 5
+      minItems: 1
+      type: array
+    StructuredQuery:
+      additionalProperties: false
+      properties:
+        field_mode:
+          enum:
+          - names
+          - ids
+          type: string
+        filter:
+          $ref: '#/components/schemas/FilterExpression'
+        group_by:
+          items:
+            minLength: 1
+            type: string
+          maxItems: 5
+          type: array
+        join:
+          items:
+            additionalProperties: false
+            properties:
+              'on':
+                additionalProperties: false
+                properties:
+                  left:
+                    minLength: 1
+                    type: string
+                  right:
+                    minLength: 1
+                    type: string
+                required:
+                - left
+                - right
+                type: object
+              table:
+                minLength: 1
+                type: string
+              type:
+                default: inner
+                enum:
+                - inner
+                - left
+                type: string
+            required:
+            - table
+            - 'on'
+            type: object
+          maxItems: 4
+          type: array
+        order_by:
+          description: Custom sort. Queries with a custom order_by do not support cursor pagination.
+          items:
+            additionalProperties: false
+            properties:
+              direction:
+                default: asc
+                enum:
+                - asc
+                - desc
+                type: string
+              field:
+                minLength: 1
+                type: string
+            required:
+            - field
+            type: object
+          maxItems: 3
+          type: array
+        select:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/AggregateSelect'
+            - $ref: '#/components/schemas/FieldSelect'
+          maxItems: 20
+          type: array
+        tables:
+          items:
+            additionalProperties: false
+            properties:
+              alias:
+                type: string
+              id:
+                minLength: 1
+                type: string
+            required:
+            - id
+            type: object
+          maxItems: 5
+          minItems: 1
+          type: array
+      required:
+      - tables
+      type: object
+    CellError:
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+        status:
+          const: error
+          type: string
+      required:
+      - status
+      type: object
+    FilterExpression:
+      anyOf:
+      - $ref: '#/components/schemas/FilterPredicate'
+      - $ref: '#/components/schemas/FilterAnd'
+      - $ref: '#/components/schemas/FilterOr'
+      - $ref: '#/components/schemas/FilterNot'
+    CellPending:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+          - running
+          - queued
+          - retry
+          - rate_limited
+          - awaiting_callback
+          type: string
+      required:
+      - status
+      type: object
+  securitySchemes:
+    ClayApiKey:
+      description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
+      in: header
+      name: clay-api-key
+      type: apiKey
