@@ -37,7 +37,7 @@ accessModel:
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/clay-com.png
 tags:
 - Prospecting
-- Go-To-Market
+- GTM
 - Sales
 - Enrichment
 - Automation
@@ -191,6 +191,8 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - Me
+  tags_raw:
   - me
   properties:
   - type: OpenAPI
@@ -213,6 +215,8 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - Routines
+  tags_raw:
   - routines
   properties:
   - type: OpenAPI
@@ -235,6 +239,8 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - Search
+  tags_raw:
   - search
   properties:
   - type: OpenAPI
@@ -257,6 +263,8 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - Tables
+  tags_raw:
   - tables
   properties:
   - type: OpenAPI
