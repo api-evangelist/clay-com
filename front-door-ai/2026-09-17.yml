@@ -1,0 +1,30 @@
+# Front Door AI Index — clay-com — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: clay-com
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: www.clay.com
+  final_host: www.clay.com
+  ownership: own
+  owner: clay-com
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 19
+  host_score: 19
+  density: 8.1
+  words: 2345
+  tiers:
+    agentic: 4
+    core: 12
+    model: 3
+  ambiguous: 7
+  top_terms:
+    AI: 12
+    agent: 7
+    agentic: 4
+    Anthropic: 1
+    Mistral: 1
+    OpenAI: 1

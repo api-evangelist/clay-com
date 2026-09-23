@@ -13,7 +13,7 @@ security:
 - ClayApiKey: []
 tags:
 - description: Search creation and pagination endpoints.
-  name: search
+  name: Search
 paths:
   /search/filters-mode:
     post:
@@ -71,7 +71,7 @@ paths:
           description: '429'
       summary: Create a search from structured filters
       tags:
-      - search
+      - Search
   /search/filters-mode/fields:
     get:
       description: Returns every filter field accepted by POST /search/filters-mode for the given source type, including each field's type, description, allowed values, and usage guidance. Call this before creating a search to build valid filters.
@@ -118,7 +118,7 @@ paths:
           description: '429'
       summary: List the filter fields available for a search source type
       tags:
-      - search
+      - Search
   /search/filters-mode/{search_id}/run:
     post:
       description: Returns the next page of records for an existing filter-mode search.
@@ -186,7 +186,7 @@ paths:
           description: '429'
       summary: Run the search iterator and return the next page of results
       tags:
-      - search
+      - Search
   /search/query-mode:
     post:
       description: Starts a new Clay search from a Clay advanced search query. The source type is detected from the query and returned in the response. Count-mode and jobs queries are not supported.
@@ -262,7 +262,7 @@ paths:
           description: '429'
       summary: Create a search from a Clay search query (beta)
       tags:
-      - search
+      - Search
   /search/query-mode/reference:
     get:
       description: Returns the Clay search query reference document (markdown), covering the queryable fields and the query grammar. Use it to author a Clay advanced search query before creating a query-mode search.
@@ -307,7 +307,7 @@ paths:
           description: '429'
       summary: Get the Clay search query reference (beta)
       tags:
-      - search
+      - Search
   /search/query-mode/{search_id}/run:
     post:
       description: Returns the next page of records for an existing query-mode search.
@@ -369,45 +369,9 @@ paths:
           description: '429'
       summary: Run the query-mode iterator and return the next page of results (beta)
       tags:
-      - search
+      - Search
 components:
   schemas:
-    SearchFilterField:
-      additionalProperties: false
-      properties:
-        allowed_values:
-          items:
-            type: string
-          type: array
-        description:
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-      required:
-      - name
-      - type
-      type: object
-    SearchFieldsResponse:
-      additionalProperties: false
-      properties:
-        fields:
-          items:
-            $ref: '#/components/schemas/SearchFilterField'
-          type: array
-        guidance:
-          $ref: '#/components/schemas/SearchFieldsGuidance'
-        source_type:
-          enum:
-          - people
-          - companies
-          type: string
-      required:
-      - source_type
-      - fields
-      - guidance
-      type: object
     PublicApiMatchedExperience:
       additionalProperties: false
       properties:
@@ -438,33 +402,13 @@ components:
       - start_date
       - end_date
       type: object
-    NextSearchResultsBody:
+    ErrorResponse:
       additionalProperties: false
       properties:
-        limit:
-          default: 20
-          maximum: 500
-          minimum: 1
-          type: integer
-      type: object
-    SearchFieldsGuidance:
-      additionalProperties: false
-      properties:
-        behavior:
-          items:
-            type: string
-          type: array
-        create_examples:
-          items:
-            $ref: '#/components/schemas/SearchCreateExample'
-          type: array
-        field_guidance:
-          items:
-            $ref: '#/components/schemas/SearchGuidanceItem'
-          type: array
+        message:
+          type: string
       required:
-      - behavior
-      - field_guidance
+      - message
       type: object
     NextQueryModePeopleResultsResponse:
       additionalProperties: false
@@ -505,49 +449,6 @@ components:
       - has_more
       - source_type
       type: object
-    NextQueryModeResultsResponse:
-      oneOf:
-      - $ref: '#/components/schemas/NextQueryModePeopleResultsResponse'
-      - $ref: '#/components/schemas/NextQueryModeCompanyResultsResponse'
-    NextQueryModeCompanyResultsResponse:
-      additionalProperties: false
-      properties:
-        data:
-          items:
-            $ref: '#/components/schemas/PublicApiCompanySearchResult'
-          type: array
-        exhaustion_reason:
-          enum:
-          - query_limit
-          - no_more_results
-          type: string
-        has_more:
-          type: boolean
-        period_quota:
-          additionalProperties: false
-          properties:
-            limit:
-              type: number
-            remaining:
-              type: number
-            resets_at:
-              type: string
-            used:
-              type: number
-          required:
-          - limit
-          - used
-          - remaining
-          - resets_at
-          type: object
-        source_type:
-          const: companies
-          type: string
-      required:
-      - data
-      - has_more
-      - source_type
-      type: object
     CreateSearchResponse:
       additionalProperties: false
       properties:
@@ -556,28 +457,24 @@ components:
       required:
       - search_id
       type: object
-    ErrorResponse:
+    SearchFieldsGuidance:
       additionalProperties: false
       properties:
-        message:
-          type: string
+        behavior:
+          items:
+            type: string
+          type: array
+        create_examples:
+          items:
+            $ref: '#/components/schemas/SearchCreateExample'
+          type: array
+        field_guidance:
+          items:
+            $ref: '#/components/schemas/SearchGuidanceItem'
+          type: array
       required:
-      - message
-      type: object
-    CreateSearchRequest:
-      additionalProperties: false
-      properties:
-        filters:
-          additionalProperties: {}
-          type: object
-        source_type:
-          enum:
-          - people
-          - companies
-          type: string
-      required:
-      - source_type
-      - filters
+      - behavior
+      - field_guidance
       type: object
     PublicApiPersonSearchResult:
       additionalProperties: false
@@ -628,75 +525,39 @@ components:
       - location
       - matched_experiences
       type: object
-    SearchCreateExample:
+    CreateSearchRequest:
       additionalProperties: false
       properties:
-        intent:
-          type: string
-        request:
-          additionalProperties: false
-          properties:
-            filters:
-              additionalProperties: {}
-              type: object
-            source_type:
-              enum:
-              - people
-              - companies
-              type: string
-          required:
-          - source_type
-          - filters
+        filters:
+          additionalProperties: {}
           type: object
+        source_type:
+          enum:
+          - people
+          - companies
+          type: string
       required:
-      - intent
-      - request
+      - source_type
+      - filters
       type: object
-    SearchGuidanceItem:
+    SearchFieldsResponse:
       additionalProperties: false
       properties:
         fields:
           items:
-            type: string
+            $ref: '#/components/schemas/SearchFilterField'
           type: array
-        id:
-          type: string
-        text:
+        guidance:
+          $ref: '#/components/schemas/SearchFieldsGuidance'
+        source_type:
+          enum:
+          - people
+          - companies
           type: string
       required:
-      - id
-      - text
-      type: object
-    NextSearchResultsResponse:
-      additionalProperties: false
-      properties:
-        data:
-          items:
-            additionalProperties: {}
-            type: object
-          type: array
-        has_more:
-          type: boolean
-        period_quota:
-          additionalProperties: false
-          properties:
-            limit:
-              type: number
-            remaining:
-              type: number
-            resets_at:
-              type: string
-            used:
-              type: number
-          required:
-          - limit
-          - used
-          - remaining
-          - resets_at
-          type: object
-      required:
-      - data
-      - has_more
+      - source_type
+      - fields
+      - guidance
       type: object
     PublicApiCompanySearchResult:
       additionalProperties: false
@@ -760,6 +621,145 @@ components:
       - linkedin_url
       - annual_revenue
       - total_funding_amount_range_usd
+      type: object
+    SearchFilterField:
+      additionalProperties: false
+      properties:
+        allowed_values:
+          items:
+            type: string
+          type: array
+        description:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+      - name
+      - type
+      type: object
+    NextSearchResultsBody:
+      additionalProperties: false
+      properties:
+        limit:
+          default: 20
+          maximum: 500
+          minimum: 1
+          type: integer
+      type: object
+    NextQueryModeResultsResponse:
+      oneOf:
+      - $ref: '#/components/schemas/NextQueryModePeopleResultsResponse'
+      - $ref: '#/components/schemas/NextQueryModeCompanyResultsResponse'
+    SearchGuidanceItem:
+      additionalProperties: false
+      properties:
+        fields:
+          items:
+            type: string
+          type: array
+        id:
+          type: string
+        text:
+          type: string
+      required:
+      - id
+      - text
+      type: object
+    NextSearchResultsResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        has_more:
+          type: boolean
+        period_quota:
+          additionalProperties: false
+          properties:
+            limit:
+              type: number
+            remaining:
+              type: number
+            resets_at:
+              type: string
+            used:
+              type: number
+          required:
+          - limit
+          - used
+          - remaining
+          - resets_at
+          type: object
+      required:
+      - data
+      - has_more
+      type: object
+    SearchCreateExample:
+      additionalProperties: false
+      properties:
+        intent:
+          type: string
+        request:
+          additionalProperties: false
+          properties:
+            filters:
+              additionalProperties: {}
+              type: object
+            source_type:
+              enum:
+              - people
+              - companies
+              type: string
+          required:
+          - source_type
+          - filters
+          type: object
+      required:
+      - intent
+      - request
+      type: object
+    NextQueryModeCompanyResultsResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PublicApiCompanySearchResult'
+          type: array
+        exhaustion_reason:
+          enum:
+          - query_limit
+          - no_more_results
+          type: string
+        has_more:
+          type: boolean
+        period_quota:
+          additionalProperties: false
+          properties:
+            limit:
+              type: number
+            remaining:
+              type: number
+            resets_at:
+              type: string
+            used:
+              type: number
+          required:
+          - limit
+          - used
+          - remaining
+          - resets_at
+          type: object
+        source_type:
+          const: companies
+          type: string
+      required:
+      - data
+      - has_more
+      - source_type
       type: object
   securitySchemes:
     ClayApiKey:

@@ -13,7 +13,7 @@ security:
 - ClayApiKey: []
 tags:
 - description: Authenticated user and workspace endpoints.
-  name: me
+  name: Me
 paths:
   /me:
     get:
@@ -75,7 +75,7 @@ paths:
           description: '429'
       summary: Get the authenticated user
       tags:
-      - me
+      - Me
 components:
   schemas:
     ErrorResponse:
