@@ -46,6 +46,7 @@ tags:
 - Automation
 - Artificial Intelligence
 - Webhook
+- A2A
 tags_raw:
 - Prospecting
 - GTM
@@ -54,6 +55,7 @@ tags_raw:
 - Automation
 - AI
 - Webhooks
+- A2A
 created: '2026-05-23'
 modified: '2026-08-14'
 specificationVersion: '0.23'
@@ -73,8 +75,6 @@ apis:
   properties:
   - type: Documentation
     url: https://university.clay.com/docs
-  - url: graphql/clay-com-graphql.md
-    type: GraphQL
 - aid: clay-com:webhooks-incoming
   name: Clay Incoming Webhooks
   description: >-
