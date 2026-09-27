@@ -300,6 +300,18 @@ paths:
       - Routines
 components:
   schemas:
+    RunRoutineResponse:
+      additionalProperties: false
+      properties:
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+      required:
+      - routine_run_id
+      - status
+      type: object
     RunResultsComplete:
       additionalProperties: false
       properties:
@@ -340,6 +352,27 @@ components:
       - status
       - error
       type: object
+    BatchResultsProcessingFailed:
+      additionalProperties: false
+      properties:
+        error:
+          additionalProperties: false
+          properties:
+            message:
+              type: string
+          required:
+          - message
+          type: object
+        routine_run_id:
+          type: string
+        status:
+          const: processing_failed
+          type: string
+      required:
+      - routine_run_id
+      - status
+      - error
+      type: object
     BatchValidationErrorDetail:
       additionalProperties: false
       properties:
@@ -353,6 +386,94 @@ components:
       - line_number
       - field
       - message
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+    RunResultsInProgress:
+      additionalProperties: false
+      properties:
+        finished:
+          type: number
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      type: object
+    RunResultItem:
+      additionalProperties: false
+      properties:
+        error:
+          additionalProperties: false
+          properties:
+            message:
+              type: string
+          required:
+          - message
+          type: object
+        id:
+          type: string
+        result:
+          additionalProperties: {}
+          type: object
+        status:
+          enum:
+          - complete
+          - failed
+          type: string
+      required:
+      - id
+      - status
+      type: object
+    BatchUploadUrlResponse:
+      additionalProperties: false
+      properties:
+        file_id:
+          type: string
+        upload_url:
+          format: uri
+          type: string
+      required:
+      - upload_url
+      - file_id
+      type: object
+    StartBatchResponse:
+      additionalProperties: false
+      properties:
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+      required:
+      - routine_run_id
+      - status
+      type: object
+    StartBatchRequest:
+      additionalProperties: false
+      properties:
+        file_id:
+          type: string
+        webhook_id:
+          description: ID of a registered Clay webhook to notify when the run finishes.
+          maxLength: 64
+          minLength: 1
+          type: string
+      required:
+      - file_id
       type: object
     BatchValidationError:
       additionalProperties: false
@@ -371,31 +492,11 @@ components:
       - total_invalid_rows
       - details
       type: object
-    StartBatchRequest:
-      additionalProperties: false
-      properties:
-        file_id:
-          type: string
-        webhook_id:
-          description: ID of a registered Clay webhook to notify when the run finishes.
-          maxLength: 64
-          minLength: 1
-          type: string
-      required:
-      - file_id
-      type: object
-    RunRoutineResponse:
-      additionalProperties: false
-      properties:
-        routine_run_id:
-          type: string
-        status:
-          const: in_progress
-          type: string
-      required:
-      - routine_run_id
-      - status
-      type: object
+    BatchResultsTerminal:
+      oneOf:
+      - $ref: '#/components/schemas/BatchResultsValidationFailed'
+      - $ref: '#/components/schemas/BatchResultsProcessingFailed'
+      - $ref: '#/components/schemas/BatchResultsComplete'
     RunRoutineRequest:
       additionalProperties: false
       properties:
@@ -425,75 +526,6 @@ components:
       required:
       - items
       type: object
-    ErrorResponse:
-      additionalProperties: false
-      properties:
-        message:
-          type: string
-      required:
-      - message
-      type: object
-    RunResultItem:
-      additionalProperties: false
-      properties:
-        error:
-          additionalProperties: false
-          properties:
-            message:
-              type: string
-          required:
-          - message
-          type: object
-        id:
-          type: string
-        result:
-          additionalProperties: {}
-          type: object
-        status:
-          enum:
-          - complete
-          - failed
-          type: string
-      required:
-      - id
-      - status
-      type: object
-    BatchResultsInProgress:
-      additionalProperties: false
-      properties:
-        finished:
-          type: number
-        routine_run_id:
-          type: string
-        status:
-          const: in_progress
-          type: string
-        total:
-          type: number
-      required:
-      - routine_run_id
-      - total
-      - finished
-      - status
-      type: object
-    RunResultsInProgress:
-      additionalProperties: false
-      properties:
-        finished:
-          type: number
-        routine_run_id:
-          type: string
-        status:
-          const: in_progress
-          type: string
-        total:
-          type: number
-      required:
-      - routine_run_id
-      - total
-      - finished
-      - status
-      type: object
     BatchResultsComplete:
       additionalProperties: false
       properties:
@@ -516,55 +548,23 @@ components:
       - status
       - result_url
       type: object
-    BatchUploadUrlResponse:
+    BatchResultsInProgress:
       additionalProperties: false
       properties:
-        file_id:
-          type: string
-        upload_url:
-          format: uri
-          type: string
-      required:
-      - upload_url
-      - file_id
-      type: object
-    StartBatchResponse:
-      additionalProperties: false
-      properties:
+        finished:
+          type: number
         routine_run_id:
           type: string
         status:
           const: in_progress
           type: string
+        total:
+          type: number
       required:
       - routine_run_id
+      - total
+      - finished
       - status
-      type: object
-    BatchResultsTerminal:
-      oneOf:
-      - $ref: '#/components/schemas/BatchResultsValidationFailed'
-      - $ref: '#/components/schemas/BatchResultsProcessingFailed'
-      - $ref: '#/components/schemas/BatchResultsComplete'
-    BatchResultsProcessingFailed:
-      additionalProperties: false
-      properties:
-        error:
-          additionalProperties: false
-          properties:
-            message:
-              type: string
-          required:
-          - message
-          type: object
-        routine_run_id:
-          type: string
-        status:
-          const: processing_failed
-          type: string
-      required:
-      - routine_run_id
-      - status
-      - error
       type: object
   securitySchemes:
     ClayApiKey:

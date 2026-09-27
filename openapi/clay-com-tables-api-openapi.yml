@@ -74,12 +74,6 @@ paths:
       - Tables
 components:
   schemas:
-    CellResult:
-      oneOf:
-      - $ref: '#/components/schemas/CellSuccess'
-      - $ref: '#/components/schemas/CellError'
-      - $ref: '#/components/schemas/CellPending'
-      - $ref: '#/components/schemas/CellEmpty'
     StructuredQueryRequest:
       additionalProperties: false
       properties:
@@ -95,77 +89,6 @@ components:
           $ref: '#/components/schemas/StructuredQuery'
       required:
       - query
-      type: object
-    CellPending:
-      additionalProperties: false
-      properties:
-        status:
-          enum:
-          - running
-          - queued
-          - retry
-          - rate_limited
-          - awaiting_callback
-          type: string
-      required:
-      - status
-      type: object
-    FieldSelect:
-      additionalProperties: false
-      properties:
-        as:
-          type: string
-        field:
-          minLength: 1
-          type: string
-        path:
-          $ref: '#/components/schemas/NestedPath'
-        table:
-          type: string
-      required:
-      - field
-      type: object
-    FieldMeta:
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-      required:
-      - id
-      - name
-      - type
-      type: object
-    ErrorResponse:
-      additionalProperties: false
-      properties:
-        message:
-          type: string
-      required:
-      - message
-      type: object
-    FilterOr:
-      additionalProperties: false
-      properties:
-        or:
-          items:
-            $ref: '#/components/schemas/FilterExpression'
-          maxItems: 10
-          minItems: 1
-          type: array
-      required:
-      - or
-      type: object
-    FilterNot:
-      additionalProperties: false
-      properties:
-        not:
-          $ref: '#/components/schemas/FilterExpression'
-      required:
-      - not
       type: object
     FilterPredicate:
       additionalProperties: false
@@ -298,29 +221,25 @@ components:
       required:
       - tables
       type: object
+    FilterExpression:
+      anyOf:
+      - $ref: '#/components/schemas/FilterPredicate'
+      - $ref: '#/components/schemas/FilterAnd'
+      - $ref: '#/components/schemas/FilterOr'
+      - $ref: '#/components/schemas/FilterNot'
+    FilterNot:
+      additionalProperties: false
+      properties:
+        not:
+          $ref: '#/components/schemas/FilterExpression'
+      required:
+      - not
+      type: object
     CellEmpty:
       additionalProperties: false
       properties:
         status:
           const: empty
-          type: string
-      required:
-      - status
-      type: object
-    NestedPath:
-      items:
-        minLength: 1
-        type: string
-      maxItems: 5
-      minItems: 1
-      type: array
-    CellError:
-      additionalProperties: false
-      properties:
-        error:
-          type: string
-        status:
-          const: error
           type: string
       required:
       - status
@@ -343,12 +262,29 @@ components:
       required:
       - data
       type: object
-    FilterExpression:
-      anyOf:
-      - $ref: '#/components/schemas/FilterPredicate'
-      - $ref: '#/components/schemas/FilterAnd'
-      - $ref: '#/components/schemas/FilterOr'
-      - $ref: '#/components/schemas/FilterNot'
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+    FieldSelect:
+      additionalProperties: false
+      properties:
+        as:
+          type: string
+        field:
+          minLength: 1
+          type: string
+        path:
+          $ref: '#/components/schemas/NestedPath'
+        table:
+          type: string
+      required:
+      - field
+      type: object
     FilterAnd:
       additionalProperties: false
       properties:
@@ -360,6 +296,38 @@ components:
           type: array
       required:
       - and
+      type: object
+    FilterOr:
+      additionalProperties: false
+      properties:
+        or:
+          items:
+            $ref: '#/components/schemas/FilterExpression'
+          maxItems: 10
+          minItems: 1
+          type: array
+      required:
+      - or
+      type: object
+    CellResult:
+      oneOf:
+      - $ref: '#/components/schemas/CellSuccess'
+      - $ref: '#/components/schemas/CellError'
+      - $ref: '#/components/schemas/CellPending'
+      - $ref: '#/components/schemas/CellEmpty'
+    FieldMeta:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+      - id
+      - name
+      - type
       type: object
     CellSuccess:
       additionalProperties: false
@@ -379,6 +347,31 @@ components:
       required:
       - status
       - fields
+      type: object
+    CellError:
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+        status:
+          const: error
+          type: string
+      required:
+      - status
+      type: object
+    CellPending:
+      additionalProperties: false
+      properties:
+        status:
+          enum:
+          - running
+          - queued
+          - retry
+          - rate_limited
+          - awaiting_callback
+          type: string
+      required:
+      - status
       type: object
     AggregateSelect:
       additionalProperties: false
@@ -404,6 +397,13 @@ components:
       - field
       - as
       type: object
+    NestedPath:
+      items:
+        minLength: 1
+        type: string
+      maxItems: 5
+      minItems: 1
+      type: array
   securitySchemes:
     ClayApiKey:
       description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
