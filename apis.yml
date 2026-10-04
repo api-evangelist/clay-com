@@ -285,6 +285,9 @@ apis:
   - type: RateLimits
     url: rate-limits/clay-com-rate-limits.yml
 common:
+- type: CapabilityMap
+  url: capabilities/clay-com-capability-edges.yml
+  name: Clay Business Capability Map
 - type: Overlay
   url: overlays/clay-com-public-api-overlay.yaml
 - type: LLMsTxt

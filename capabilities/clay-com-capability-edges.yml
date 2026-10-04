@@ -1,0 +1,26 @@
+slug: clay-com
+provider: Clay
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Search
+  spec_file: clay-com-search-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.7
+  evidence: 'schemas ''PublicApiPersonSearchResult'', ''PublicApiCompanySearchResult'', ''PublicApiMatchedExperience'';
+    vendor: ''AI-native sales prospecting and GTM data orchestration platform'''
+  reason: People and company search over a prospecting dataset is lead sourcing/prospecting, which sits
+    in lead and opportunity pipeline management. Some ambiguity between lead generation (BC-400.40) and
+    pipeline (BC-410.30).
