@@ -300,206 +300,6 @@ paths:
       - Routines
 components:
   schemas:
-    RunRoutineResponse:
-      additionalProperties: false
-      properties:
-        routine_run_id:
-          type: string
-        status:
-          const: in_progress
-          type: string
-      required:
-      - routine_run_id
-      - status
-      type: object
-    BatchResultsProcessingFailed:
-      additionalProperties: false
-      properties:
-        error:
-          additionalProperties: false
-          properties:
-            message:
-              type: string
-          required:
-          - message
-          type: object
-        routine_run_id:
-          type: string
-        status:
-          const: processing_failed
-          type: string
-      required:
-      - routine_run_id
-      - status
-      - error
-      type: object
-    BatchResultsInProgress:
-      additionalProperties: false
-      properties:
-        finished:
-          type: number
-        routine_run_id:
-          type: string
-        status:
-          const: in_progress
-          type: string
-        total:
-          type: number
-      required:
-      - routine_run_id
-      - total
-      - finished
-      - status
-      type: object
-    RunRoutineRequest:
-      additionalProperties: false
-      properties:
-        items:
-          items:
-            additionalProperties: false
-            properties:
-              id:
-                maxLength: 64
-                minLength: 1
-                type: string
-              inputs:
-                additionalProperties: {}
-                type: object
-            required:
-            - id
-            - inputs
-            type: object
-          maxItems: 100
-          minItems: 1
-          type: array
-        webhook_id:
-          description: ID of a registered Clay webhook to notify when the run finishes.
-          maxLength: 64
-          minLength: 1
-          type: string
-      required:
-      - items
-      type: object
-    RunResultItem:
-      additionalProperties: false
-      properties:
-        error:
-          additionalProperties: false
-          properties:
-            message:
-              type: string
-          required:
-          - message
-          type: object
-        id:
-          type: string
-        result:
-          additionalProperties: {}
-          type: object
-        status:
-          enum:
-          - complete
-          - failed
-          type: string
-      required:
-      - id
-      - status
-      type: object
-    BatchResultsTerminal:
-      oneOf:
-      - $ref: '#/components/schemas/BatchResultsValidationFailed'
-      - $ref: '#/components/schemas/BatchResultsProcessingFailed'
-      - $ref: '#/components/schemas/BatchResultsComplete'
-    BatchResultsValidationFailed:
-      additionalProperties: false
-      properties:
-        error:
-          $ref: '#/components/schemas/BatchValidationError'
-        routine_run_id:
-          type: string
-        status:
-          const: validation_failed
-          type: string
-      required:
-      - routine_run_id
-      - status
-      - error
-      type: object
-    StartBatchResponse:
-      additionalProperties: false
-      properties:
-        routine_run_id:
-          type: string
-        status:
-          const: in_progress
-          type: string
-      required:
-      - routine_run_id
-      - status
-      type: object
-    BatchValidationError:
-      additionalProperties: false
-      properties:
-        details:
-          items:
-            $ref: '#/components/schemas/BatchValidationErrorDetail'
-          maxItems: 100
-          type: array
-        message:
-          type: string
-        total_invalid_rows:
-          type: number
-      required:
-      - message
-      - total_invalid_rows
-      - details
-      type: object
-    RunResultsComplete:
-      additionalProperties: false
-      properties:
-        cursor:
-          type: string
-        data:
-          items:
-            $ref: '#/components/schemas/RunResultItem'
-          type: array
-        finished:
-          type: number
-        routine_run_id:
-          type: string
-        status:
-          const: complete
-          type: string
-        total:
-          type: number
-      required:
-      - routine_run_id
-      - total
-      - finished
-      - status
-      - data
-      type: object
-    StartBatchRequest:
-      additionalProperties: false
-      properties:
-        file_id:
-          type: string
-        webhook_id:
-          description: ID of a registered Clay webhook to notify when the run finishes.
-          maxLength: 64
-          minLength: 1
-          type: string
-      required:
-      - file_id
-      type: object
-    ErrorResponse:
-      additionalProperties: false
-      properties:
-        message:
-          type: string
-      required:
-      - message
-      type: object
     BatchValidationErrorDetail:
       additionalProperties: false
       properties:
@@ -536,17 +336,67 @@ components:
       - status
       - result_url
       type: object
-    BatchUploadUrlResponse:
+    RunResultItem:
       additionalProperties: false
       properties:
-        file_id:
+        error:
+          additionalProperties: false
+          properties:
+            message:
+              type: string
+          required:
+          - message
+          type: object
+        id:
           type: string
-        upload_url:
-          format: uri
+        result:
+          additionalProperties: {}
+          type: object
+        status:
+          enum:
+          - complete
+          - failed
           type: string
       required:
-      - upload_url
-      - file_id
+      - id
+      - status
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+    RunRoutineRequest:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            additionalProperties: false
+            properties:
+              id:
+                maxLength: 64
+                minLength: 1
+                type: string
+              inputs:
+                additionalProperties: {}
+                type: object
+            required:
+            - id
+            - inputs
+            type: object
+          maxItems: 100
+          minItems: 1
+          type: array
+        webhook_id:
+          description: ID of a registered Clay webhook to notify when the run finishes.
+          maxLength: 64
+          minLength: 1
+          type: string
+      required:
+      - items
       type: object
     RunResultsInProgress:
       additionalProperties: false
@@ -566,6 +416,156 @@ components:
       - finished
       - status
       type: object
+    BatchResultsInProgress:
+      additionalProperties: false
+      properties:
+        finished:
+          type: number
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      type: object
+    StartBatchResponse:
+      additionalProperties: false
+      properties:
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+      required:
+      - routine_run_id
+      - status
+      type: object
+    BatchUploadUrlResponse:
+      additionalProperties: false
+      properties:
+        file_id:
+          type: string
+        upload_url:
+          format: uri
+          type: string
+      required:
+      - upload_url
+      - file_id
+      type: object
+    RunResultsComplete:
+      additionalProperties: false
+      properties:
+        cursor:
+          type: string
+        data:
+          items:
+            $ref: '#/components/schemas/RunResultItem'
+          type: array
+        finished:
+          type: number
+        routine_run_id:
+          type: string
+        status:
+          const: complete
+          type: string
+        total:
+          type: number
+      required:
+      - routine_run_id
+      - total
+      - finished
+      - status
+      - data
+      type: object
+    RunRoutineResponse:
+      additionalProperties: false
+      properties:
+        routine_run_id:
+          type: string
+        status:
+          const: in_progress
+          type: string
+      required:
+      - routine_run_id
+      - status
+      type: object
+    StartBatchRequest:
+      additionalProperties: false
+      properties:
+        file_id:
+          type: string
+        webhook_id:
+          description: ID of a registered Clay webhook to notify when the run finishes.
+          maxLength: 64
+          minLength: 1
+          type: string
+      required:
+      - file_id
+      type: object
+    BatchResultsProcessingFailed:
+      additionalProperties: false
+      properties:
+        error:
+          additionalProperties: false
+          properties:
+            message:
+              type: string
+          required:
+          - message
+          type: object
+        routine_run_id:
+          type: string
+        status:
+          const: processing_failed
+          type: string
+      required:
+      - routine_run_id
+      - status
+      - error
+      type: object
+    BatchResultsValidationFailed:
+      additionalProperties: false
+      properties:
+        error:
+          $ref: '#/components/schemas/BatchValidationError'
+        routine_run_id:
+          type: string
+        status:
+          const: validation_failed
+          type: string
+      required:
+      - routine_run_id
+      - status
+      - error
+      type: object
+    BatchValidationError:
+      additionalProperties: false
+      properties:
+        details:
+          items:
+            $ref: '#/components/schemas/BatchValidationErrorDetail'
+          maxItems: 100
+          type: array
+        message:
+          type: string
+        total_invalid_rows:
+          type: number
+      required:
+      - message
+      - total_invalid_rows
+      - details
+      type: object
+    BatchResultsTerminal:
+      oneOf:
+      - $ref: '#/components/schemas/BatchResultsValidationFailed'
+      - $ref: '#/components/schemas/BatchResultsProcessingFailed'
+      - $ref: '#/components/schemas/BatchResultsComplete'
   securitySchemes:
     ClayApiKey:
       description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
