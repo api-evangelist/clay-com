@@ -107,3 +107,58 @@ references:
   url: https://www.clay.com/enterprise
 - name: Tables (Enterprise) developer docs
   url: https://developers.clay.com/tables
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  - negotiated
+  units:
+  - credit
+  - data
+  - request
+  - seat
+  plans:
+  - name: Free
+    access: freemium
+    model: free
+    model_how: derived
+    units:
+    - credit
+    - data
+    - request
+    - seat
+    periods:
+    - month
+    - year
+  - name: Launch
+    access: paid
+    model: free
+    model_how: derived
+    units:
+    - credit
+    - request
+    - seat
+    periods:
+    - month
+    - year
+  - name: Growth
+    access: paid
+    model: free
+    model_how: derived
+    units:
+    - credit
+    - request
+    - seat
+    periods:
+    - month
+    - year
+  - name: Enterprise
+    access: negotiated
+    model: negotiated
+    model_how: stated
+    units:
+    - credit
+    - request
+    - seat
+    periods: []
