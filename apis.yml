@@ -42,7 +42,7 @@ tags:
 - Prospecting
 - Go-To-Market
 - Sales
-- Enrichment
+- Data Enrichment
 - Automation
 - Artificial Intelligence
 - Webhook
@@ -69,6 +69,10 @@ apis:
   humanURL: https://university.clay.com/docs
   baseURL: https://app.clay.com
   tags:
+  - HTTP
+  - Data Enrichment
+  - REST
+  tags_raw:
   - HTTP
   - Enrichment
   - REST
@@ -157,6 +161,10 @@ apis:
   humanURL: https://chromewebstore.google.com/detail/clay/jcdciginbafocoljjicajneijiapongl
   baseURL: https://chromewebstore.google.com/detail/clay/jcdciginbafocoljjicajneijiapongl
   tags:
+  - Chrome
+  - Extension
+  - Web Scraping
+  tags_raw:
   - Chrome
   - Extension
   - Scraping
