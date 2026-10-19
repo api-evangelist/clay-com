@@ -292,6 +292,26 @@ apis:
     url: errors/clay-com-problem-types.yml
   - type: RateLimits
     url: rate-limits/clay-com-rate-limits.yml
+- aid: clay-com:clay-com-credits-api
+  name: Clay Credits API
+  description: Workspace credit balances.
+  humanURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
+  tags:
+  - credits
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-credits-api-openapi.yml
+- aid: clay-com:clay-com-workflowsruns-api
+  name: Clay Workflows Runs API
+  description: Search workflow runs by query.
+  humanURL: https://university.clay.com/docs
+  baseURL: https://app.clay.com
+  tags:
+  - workflowsRuns
+  properties:
+  - type: OpenAPI
+    url: openapi/clay-com-workflowsruns-api-openapi.yml
 common:
 - type: CapabilityMap
   url: capabilities/clay-com-capability-edges.yml

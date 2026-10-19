@@ -32,6 +32,10 @@ paths:
                     properties:
                       cli_onboarded:
                         type: boolean
+                      email:
+                        anyOf:
+                        - type: string
+                        - type: 'null'
                       id:
                         type: string
                       name:
@@ -47,6 +51,10 @@ paths:
                     properties:
                       id:
                         type: string
+                      name:
+                        anyOf:
+                        - type: string
+                        - type: 'null'
                     required:
                     - id
                     type: object

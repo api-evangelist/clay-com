@@ -1,0 +1,228 @@
+openapi: 3.2.0
+info:
+  contact:
+    name: Clay
+    url: https://www.clay.com
+  description: Programmatic access to Clay.
+  title: Clay Public Workflows Runs API
+  version: '0'
+servers:
+- description: production
+  url: https://api.clay.com/public/v0
+security:
+- ClayApiKey: []
+tags:
+- description: Search workflow runs by query.
+  name: workflowsRuns
+paths:
+  /workflows/runs/query:
+    post:
+      description: Execute a Clay workflow-run query. A `select` query returns matching runs newest-first with a `cursor` for the next page; a `count` query returns the number of matching runs. Get the query grammar with GET /workflows/runs/query/reference. Results are read from an eventually-consistent replica (replication lag is typically a few seconds), so a just-created or just-transitioned run may briefly be missing or show its prior status.
+      operationId: runQuery
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunsQueryRequest'
+        description: Body
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunsQueryResponse'
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Search runs by query (beta)
+      tags:
+      - workflowsRuns
+  /workflows/runs/query/reference:
+    get:
+      description: Returns the Clay workflow-run query reference document (markdown), covering the queryable run fields, node predicates, content search, and the query grammar. Use it to author a workflow-run query.
+      operationId: queryReference
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunsQueryReferenceResponse'
+          description: '200'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '400'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Get the runs search query reference (beta)
+      tags:
+      - workflowsRuns
+components:
+  schemas:
+    RunsQueryReferenceResponse:
+      additionalProperties: false
+      properties:
+        reference:
+          type: string
+      required:
+      - reference
+      type: object
+    RunsQueryRequest:
+      additionalProperties: false
+      properties:
+        cursor:
+          type: string
+        limit:
+          maximum: 100
+          minimum: 1
+          type: integer
+        query:
+          maxLength: 2000
+          minLength: 1
+          type: string
+      required:
+      - query
+      type: object
+    RunsQueryRow:
+      additionalProperties: false
+      properties:
+        action_credits_used:
+          type: number
+        created_at:
+          type: string
+        data_credits_used:
+          type: number
+        ended_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+        id:
+          type: string
+        input_field_count:
+          maximum: 9007199254740991
+          minimum: 0
+          type: integer
+        output_field_count:
+          maximum: 9007199254740991
+          minimum: 0
+          type: integer
+        run_status:
+          type: string
+        started_at:
+          type: string
+        trigger_fired_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+        trigger_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+        workflow_id:
+          type: string
+        workflow_snapshot_id:
+          type: string
+      required:
+      - id
+      - workflow_id
+      - workflow_snapshot_id
+      - trigger_id
+      - run_status
+      - started_at
+      - ended_at
+      - created_at
+      - data_credits_used
+      - action_credits_used
+      - input_field_count
+      - output_field_count
+      type: object
+    RunsQuerySelectResponse:
+      additionalProperties: false
+      properties:
+        cursor:
+          type: string
+        data:
+          items:
+            $ref: '#/components/schemas/RunsQueryRow'
+          type: array
+        mode:
+          const: select
+          type: string
+      required:
+      - mode
+      - data
+      type: object
+    RunsQueryResponse:
+      oneOf:
+      - $ref: '#/components/schemas/RunsQuerySelectResponse'
+      - $ref: '#/components/schemas/RunsQueryCountResponse'
+    RunsQueryCountResponse:
+      additionalProperties: false
+      properties:
+        count:
+          maximum: 9007199254740991
+          minimum: 0
+          type: integer
+        mode:
+          const: count
+          type: string
+      required:
+      - mode
+      - count
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+  securitySchemes:
+    ClayApiKey:
+      description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
+      in: header
+      name: clay-api-key
+      type: apiKey

@@ -74,45 +74,49 @@ paths:
       - Tables
 components:
   schemas:
-    AggregateSelect:
+    NestedPath:
+      items:
+        minLength: 1
+        type: string
+      maxItems: 5
+      minItems: 1
+      type: array
+    CellError:
       additionalProperties: false
       properties:
-        as:
-          minLength: 1
+        error:
           type: string
-        field:
-          minLength: 1
+        status:
+          const: error
           type: string
-        fn:
-          enum:
-          - count
-          - sum
-          - avg
-          - max
-          - min
-          type: string
-        path:
-          $ref: '#/components/schemas/NestedPath'
       required:
-      - fn
-      - field
-      - as
+      - status
       type: object
-    StructuredQueryRequest:
+    FilterAnd:
       additionalProperties: false
       properties:
-        cursor:
-          description: 'Opaque cursor from the previous response. Scans page in least-recently-updated-first order and reflect concurrent writes: a record updated mid-scan can be returned again, so deduplicate by id.'
-          type: string
-        limit:
-          default: 50
-          maximum: 100
-          minimum: 1
-          type: integer
-        query:
-          $ref: '#/components/schemas/StructuredQuery'
+        and:
+          items:
+            $ref: '#/components/schemas/FilterExpression'
+          maxItems: 10
+          minItems: 1
+          type: array
       required:
-      - query
+      - and
+      type: object
+    FilterExpression:
+      anyOf:
+      - $ref: '#/components/schemas/FilterPredicate'
+      - $ref: '#/components/schemas/FilterAnd'
+      - $ref: '#/components/schemas/FilterOr'
+      - $ref: '#/components/schemas/FilterNot'
+    FilterNot:
+      additionalProperties: false
+      properties:
+        not:
+          $ref: '#/components/schemas/FilterExpression'
+      required:
+      - not
       type: object
     FilterPredicate:
       additionalProperties: false
@@ -153,37 +157,29 @@ components:
       - field
       - op
       type: object
-    QueryResponse:
+    AggregateSelect:
       additionalProperties: false
       properties:
-        cursor:
+        as:
+          minLength: 1
           type: string
-        data:
-          items:
-            additionalProperties:
-              $ref: '#/components/schemas/CellResult'
-            type: object
-          type: array
-        fields:
-          additionalProperties:
-            $ref: '#/components/schemas/FieldMeta'
-          type: object
-      required:
-      - data
-      type: object
-    CellPending:
-      additionalProperties: false
-      properties:
-        status:
+        field:
+          minLength: 1
+          type: string
+        fn:
           enum:
-          - running
-          - queued
-          - retry
-          - rate_limited
-          - awaiting_callback
+          - count
+          - sum
+          - avg
+          - max
+          - min
           type: string
+        path:
+          $ref: '#/components/schemas/NestedPath'
       required:
-      - status
+      - fn
+      - field
+      - as
       type: object
     FieldSelect:
       additionalProperties: false
@@ -200,13 +196,56 @@ components:
       required:
       - field
       type: object
-    NestedPath:
-      items:
-        minLength: 1
-        type: string
-      maxItems: 5
-      minItems: 1
-      type: array
+    QueryResponse:
+      additionalProperties: false
+      properties:
+        cursor:
+          type: string
+        data:
+          items:
+            additionalProperties:
+              $ref: '#/components/schemas/CellResult'
+            type: object
+          type: array
+        fields:
+          additionalProperties:
+            $ref: '#/components/schemas/FieldMeta'
+          type: object
+        truncated:
+          description: True when more results matched than the limit but no cursor can be issued (grouped, aggregated, or custom-ordered queries do not support cursor pagination). Narrow the query or raise the limit to see the rest.
+          type: boolean
+      required:
+      - data
+      type: object
+    CellResult:
+      oneOf:
+      - $ref: '#/components/schemas/CellSuccess'
+      - $ref: '#/components/schemas/CellError'
+      - $ref: '#/components/schemas/CellPending'
+      - $ref: '#/components/schemas/CellEmpty'
+    CellEmpty:
+      additionalProperties: false
+      properties:
+        status:
+          const: empty
+          type: string
+      required:
+      - status
+      type: object
+    FieldMeta:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+      - id
+      - name
+      - type
+      type: object
     ErrorResponse:
       additionalProperties: false
       properties:
@@ -215,31 +254,21 @@ components:
       required:
       - message
       type: object
-    CellResult:
-      oneOf:
-      - $ref: '#/components/schemas/CellSuccess'
-      - $ref: '#/components/schemas/CellError'
-      - $ref: '#/components/schemas/CellPending'
-      - $ref: '#/components/schemas/CellEmpty'
-    FilterNot:
+    StructuredQueryRequest:
       additionalProperties: false
       properties:
-        not:
-          $ref: '#/components/schemas/FilterExpression'
+        cursor:
+          description: 'Opaque cursor from the previous response. Scans page in least-recently-updated-first order and reflect concurrent writes: a record updated mid-scan can be returned again, so deduplicate by id.'
+          type: string
+        limit:
+          default: 50
+          maximum: 100
+          minimum: 1
+          type: integer
+        query:
+          $ref: '#/components/schemas/StructuredQuery'
       required:
-      - not
-      type: object
-    FilterOr:
-      additionalProperties: false
-      properties:
-        or:
-          items:
-            $ref: '#/components/schemas/FilterExpression'
-          maxItems: 10
-          minItems: 1
-          type: array
-      required:
-      - or
+      - query
       type: object
     StructuredQuery:
       additionalProperties: false
@@ -333,24 +362,6 @@ components:
       required:
       - tables
       type: object
-    FilterExpression:
-      anyOf:
-      - $ref: '#/components/schemas/FilterPredicate'
-      - $ref: '#/components/schemas/FilterAnd'
-      - $ref: '#/components/schemas/FilterOr'
-      - $ref: '#/components/schemas/FilterNot'
-    FilterAnd:
-      additionalProperties: false
-      properties:
-        and:
-          items:
-            $ref: '#/components/schemas/FilterExpression'
-          maxItems: 10
-          minItems: 1
-          type: array
-      required:
-      - and
-      type: object
     CellSuccess:
       additionalProperties: false
       properties:
@@ -370,39 +381,31 @@ components:
       - status
       - fields
       type: object
-    CellError:
+    CellPending:
       additionalProperties: false
       properties:
-        error:
-          type: string
         status:
-          const: error
+          enum:
+          - running
+          - queued
+          - retry
+          - rate_limited
+          - awaiting_callback
           type: string
       required:
       - status
       type: object
-    CellEmpty:
+    FilterOr:
       additionalProperties: false
       properties:
-        status:
-          const: empty
-          type: string
+        or:
+          items:
+            $ref: '#/components/schemas/FilterExpression'
+          maxItems: 10
+          minItems: 1
+          type: array
       required:
-      - status
-      type: object
-    FieldMeta:
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-      required:
-      - id
-      - name
-      - type
+      - or
       type: object
   securitySchemes:
     ClayApiKey:

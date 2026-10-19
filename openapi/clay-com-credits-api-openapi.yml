@@ -1,0 +1,76 @@
+openapi: 3.2.0
+info:
+  contact:
+    name: Clay
+    url: https://www.clay.com
+  description: Programmatic access to Clay.
+  title: Clay Public Credits API
+  version: '0'
+servers:
+- description: production
+  url: https://api.clay.com/public/v0
+security:
+- ClayApiKey: []
+tags:
+- description: Workspace credit balances.
+  name: Credits
+paths:
+  /credits/balance:
+    get:
+      description: Returns the current credit balances for the workspace associated with the API key. Reading balances does not consume credits.
+      operationId: getCreditBalance
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                properties:
+                  action_execution_balance:
+                    description: Remaining actions. Omitted for workspaces on legacy billing plans or without a billing plan.
+                    type: number
+                  balance:
+                    description: Total remaining spendable data credits, including rollover credits.
+                    type: number
+                required:
+                - balance
+                type: object
+          description: '200'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '401'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '403'
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: '429'
+      summary: Get workspace credit balances
+      tags:
+      - Credits
+components:
+  schemas:
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+  securitySchemes:
+    ClayApiKey:
+      description: Personal API key tied to your Clay user. Create one under Settings → Account in the Clay app.
+      in: header
+      name: clay-api-key
+      type: apiKey
