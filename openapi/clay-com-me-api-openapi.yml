@@ -100,3 +100,9 @@ components:
       in: header
       name: clay-api-key
       type: apiKey
+x-provenance:
+  method: harvested
+  publisher: Clay
+  source: https://developers.clay.com/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
